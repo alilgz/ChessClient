@@ -6,5 +6,13 @@
         xmlns:local="clr-namespace:ChessClient"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="800">
-    <Canvas  Background="Lavender" Name ="Canvas1"/>
+
+    <Menu x:Name="menu">
+        <MenuItem x:Name="Game" Header="Game">
+            <MenuItem Header="Start" Click="Start_Click"/>
+            <MenuItem Header="Exit" Click="Exit_Click"/>
+        </MenuItem>
+
+        <Canvas  Background="Lavender" x:Name ="Canvas1" Height="784" Width="800"  MouseLeftButtonDown="cavas_Mouse1Down" />
+    </Menu>
 </Window>
