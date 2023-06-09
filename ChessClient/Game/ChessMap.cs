@@ -90,7 +90,7 @@ namespace ChessClient.Game
             return true;
         }
 
-        internal Figure[,] CheckForCollision(Direction pattern, Position pos)
+        internal Figure[,] CheckForCollision(Direction pattern, Position pos, bool CanOnlyTake = false, bool CanOnlyMove = false)
         {
             Figure[,] markerMap = new Figure[8, 8];
             Fill(markerMap, Figure.none);
@@ -103,10 +103,17 @@ namespace ChessClient.Game
                 {
                     var newPos = pos + dir;
                     if (!CanMoveToPosition(newPos, myColor, out var takeFigure))
-                        break;
+                        continue;
+
+                    if (CanOnlyMove && takeFigure)
+                        continue;
+
+                    if (CanOnlyTake && !takeFigure)
+                        continue;
+
                     markerMap[newPos.x, newPos.y] = Figure.moveMarker;
                     if (takeFigure)
-                        break;
+                        continue ;
 
                 }
                 else
@@ -127,6 +134,21 @@ namespace ChessClient.Game
 
 
             return markerMap;
+        }
+
+        internal Figure[,] Merge(Figure[,] moveMap2, Figure[,] moveMap1)
+        {
+            Figure[,] temp = new Figure[8, 8];
+
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    temp[i, j] = Figure.none;
+                    temp[i, j] = moveMap1[i,j] == Figure.moveMarker || moveMap2[i, j] == Figure.moveMarker ? Figure.moveMarker : Figure.none ;
+                }
+            }
+            return temp;
         }
 
         internal void excludeCheckMoves()

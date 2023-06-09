@@ -9,6 +9,8 @@ namespace ChessClient.Game
         public List<Position> directions;
         public int distance; // 1 for king and pawn( ? patch later ? ), 0 for knight , 7 to queen, rook, bishop
         public bool CanBeAttacked = true;
+        public bool CanMove = true;
+        public bool CanTake = true;
 
         public static Direction getRookDirections()
         {
@@ -71,7 +73,7 @@ namespace ChessClient.Game
             {
                 distance = 0, // no multiply, exact coords
                 directions = new List<Position> {
-                    new Position(2, -1), 
+                    new Position(2, -1),
                     new Position(2, 1),
                     new Position(-2, -1),
                     new Position(-2, 1),
@@ -83,11 +85,25 @@ namespace ChessClient.Game
             };
         }
 
-        public static Direction getBlackPawnDirection()
+        public static Direction getBlackPawnDirection(bool take)
         {
+            if (take) return
+
+                    new Direction()
+                    {
+                        distance = 0,
+                        CanMove = false,
+                        CanTake = true,
+                        directions = new List<Position> {
+                    new Position(1, 1 ) ,
+                    new Position(-1, 1),
+                }
+                    };
             return new Direction()
             {
-                distance = 0, 
+                distance = 0,
+                CanTake = false,
+                CanMove = true,
                 directions = new List<Position> {
                     new Position(0, 1),
                     new Position(0, 2),
@@ -95,8 +111,18 @@ namespace ChessClient.Game
             };
         }
 
-        public static Direction getwhitePawnDirection()
+        public static Direction getwhitePawnDirection( bool take)
         {
+            if(take)
+                return new Direction()
+                {
+                    distance = 0,
+                    directions = new List<Position> {
+                    new Position(-1, -1),
+                    new Position(1, -1),
+                }
+                };
+
             return new Direction()
             {
                 distance = 0,

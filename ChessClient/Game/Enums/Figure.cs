@@ -38,7 +38,10 @@ namespace ChessClient.Game
         }
         public static ChessMap getPossibleMoves(this Figure piece, ChessMap map, Position pos)
         {
-            Direction pattern =null; 
+            Direction pattern =null;
+            Direction patternAttack = null;
+            Direction patternMove = null;
+
             switch (piece)
             {
                 case Figure.bKing:
@@ -62,17 +65,37 @@ namespace ChessClient.Game
                     pattern = Direction.getRookDirections();
                     break;
                 case Figure.bPawn:
-                    pattern = Direction.getBlackPawnDirection();
+                    patternMove = Direction.getBlackPawnDirection(false);
+                    if (pos.y != 1)
+                    {
+                        patternMove.directions.RemoveAt(1);
+                    }
+                    patternAttack = Direction.getBlackPawnDirection(true);
                     break;
                 case Figure.wPawn:
-                    pattern = Direction.getwhitePawnDirection();
+                    patternMove = Direction.getwhitePawnDirection(false);
+                    if (pos.y != 6)
+                    {
+                        patternMove.directions.RemoveAt(1);
+                    }
+
+                    patternAttack = Direction.getwhitePawnDirection(true);
                     break;
                 default:
                     return null;
             }
 
-
-            var moveMap = map.CheckForCollision(pattern, pos);
+            Figure[,] moveMap = null;
+            if (patternAttack != null && patternMove != null)
+            {
+                var moveMap1 = map.CheckForCollision(patternAttack, pos, CanOnlyTake: true);
+                var moveMap2 = map.CheckForCollision(patternMove, pos, CanOnlyMove: true);
+                moveMap = map.Merge(moveMap2, moveMap1);
+            }
+            else
+            {
+                moveMap = map.CheckForCollision(pattern, pos);
+            }
             var nextPositionMap = new ChessMap() { map = moveMap };
             if (nextPositionMap.underCheck())
             {
