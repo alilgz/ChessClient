@@ -6,7 +6,7 @@ namespace ChessClient.Game
 {
 
     
-    public enum Figure:byte { none=0, moveMarker,  bKing, bQueen, bPawn, bKnight, bBishop, bRook, wKing, wQueen, wPawn, wKnight, wBishop, wRook };
+    public enum Figure:byte { none=0, moveMarker=1,  bKing=2, bQueen=3, bPawn=4, bKnight=5, bBishop=6, bRook=7, wKing=8, wQueen=9, wPawn=10, wKnight=11, wBishop=12, wRook=13 };
     
     public static class FigureHelper
     {

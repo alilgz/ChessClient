@@ -117,6 +117,9 @@ namespace ChessClient.Game
                             // do nothing 
                         }
                     }
+
+                    //checkForCheck ?
+
                     break;
             }
             CurrentStage = nextStage;

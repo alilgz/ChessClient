@@ -12,7 +12,12 @@
             <MenuItem Header="Start" Click="Start_Click"/>
             <MenuItem Header="Exit" Click="Exit_Click"/>
         </MenuItem>
+        <Canvas  Background="Lavender" x:Name ="Canvas1" Height="784" Width="800"  MouseLeftButtonDown="cavas_Mouse1Down" >
+           
+        </Canvas>
 
-        <Canvas  Background="Lavender" x:Name ="Canvas1" Height="784" Width="800"  MouseLeftButtonDown="cavas_Mouse1Down" />
     </Menu>
+
+
+
 </Window>

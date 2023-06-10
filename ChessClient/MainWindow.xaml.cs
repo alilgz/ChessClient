@@ -1,17 +1,11 @@
 ﻿using ChessClient.Game;
+using ChessClient.resources;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Figure = ChessClient.Game.Figure;
 
@@ -78,7 +72,7 @@ namespace ChessClient
                     el.Width = 50;
                     el.Height = 50;
                     el.VerticalAlignment = VerticalAlignment.Top;
-                    el.Fill = (i + j) % 2 == 1 ?white : black;
+                    el.Fill = (i + j) % 2 == 1 ? white : black;
                     el.StrokeThickness = 1;
                     Canvas1.Children.Add(el);
                     Canvas.SetLeft(el, table_POS_X + i * CELL_WIDTH);
@@ -109,40 +103,18 @@ namespace ChessClient
             switch (figure)
             {
                 case Figure.bRook:
-                    PaintRook(i, j, ChessColor.Black);
-                    break;
                 case Figure.wRook:
-                    PaintRook(i, j, ChessColor.White);
-                    break;
                 case Figure.wBishop:
-                    PaintBishop(i, j, ChessColor.White);
-                    break;
                 case Figure.bBishop:
-                    PaintBishop(i, j, ChessColor.Black);
-                    break;
-                case Figure.wKnight:
-                    PaintKnight(i, j, ChessColor.White);
-                    break;
                 case Figure.bKnight:
-                    PaintKnight(i, j, ChessColor.Black);
-                    break;
                 case Figure.wQueen:
-                    PaintQueen(i, j, ChessColor.White);
-                    break;
                 case Figure.bQueen:
-                    PaintQueen(i, j, ChessColor.Black);
-                    break;
                 case Figure.wKing:
-                    PaintKing(i, j, ChessColor.White);
-                    break;
+                case Figure.wKnight:
                 case Figure.bKing:
-                    PaintKing(i, j, ChessColor.Black);
-                    break;
                 case Figure.wPawn:
-                    PaintPawn(i, j, ChessColor.White);
-                    break;
                 case Figure.bPawn:
-                    PaintPawn(i, j, ChessColor.Black);
+                    PaintPicture(i, j, ChessColor.Black, PNGReader.getChessSkin(figure));
                     break;
                 case Figure.moveMarker:
                     PaintMarker(i, j, ChessColor.Empty);
@@ -153,8 +125,7 @@ namespace ChessClient
 
         }
 
-
-        private void PaintKing(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "K");
+        private void PaintKing(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "K"); 
         private void PaintQueen(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "Q");
         private void PaintBishop(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "B");
         private void PaintKnight(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "N");
@@ -173,16 +144,27 @@ namespace ChessClient
 
         }
 
+        private void PaintPicture(int x, int y, ChessColor c, ImageBrush brush)
+        {
+            Rectangle myRectangle = new Rectangle();
+            myRectangle.Width = 50;
+            myRectangle.Height = 50;
+            myRectangle.Fill = brush;
+            Canvas1.Children.Add(myRectangle);
+            Canvas.SetLeft(myRectangle, table_POS_X + x * CELL_WIDTH );
+            Canvas.SetTop(myRectangle, table_POS_Y + y * CELL_HEIGHT );
+
+        }
         private void PaintMarker(int x, int y, ChessColor c)
         {
             var rb = new Rectangle();
 
             rb.Width = 5;
             rb.Height = 5;
-            rb.Fill =  new SolidColorBrush(Color.FromRgb(1, 200, 200));
+            rb.Fill = new SolidColorBrush(Color.FromRgb(1, 200, 200));
             Canvas1.Children.Add(rb);
-            Canvas.SetLeft(rb, table_POS_X + x * CELL_WIDTH + CELL_WIDTH/2 -5/2);
-            Canvas.SetTop(rb, table_POS_Y + y * CELL_HEIGHT + CELL_WIDTH / 2 - 5 / 2 );
+            Canvas.SetLeft(rb, table_POS_X + x * CELL_WIDTH + CELL_WIDTH / 2 - 5 / 2);
+            Canvas.SetTop(rb, table_POS_Y + y * CELL_HEIGHT + CELL_WIDTH / 2 - 5 / 2);
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
@@ -217,5 +199,39 @@ namespace ChessClient
             result.y = (int)Math.Floor((pos.Y - table_POS_Y) / CELL_HEIGHT);
             return result;
         }
+
+
+        private void DrawChessKing(int x, int y, ChessColor c)
+        {
+
+            Path kingBody = new Path();
+            //            kingBody.Data = Geometry.Parse("M0 0 L100 0 Q150 50 100 100 L0 100 Q50 50 0 0z");
+            kingBody.Data = Geometry.Parse("M5 50 L10 0 L40 0 L45 50z");
+            kingBody.Fill = c == ChessColor.Black ? Brushes.Black : Brushes.White;
+
+            PathGeometry kingCrown = new PathGeometry();
+            PathFigure figure = new PathFigure();
+            figure.StartPoint = new Point(5, 0);
+            figure.Segments.Add(new LineSegment(new Point(25, 20), true));
+            figure.Segments.Add(new LineSegment(new Point(45, 0), true));
+            kingCrown.Figures.Add(figure);
+
+            Path kingHead = new Path();
+            kingHead.Data = kingCrown;
+            kingBody.Fill = c == ChessColor.Black ? Brushes.Black : Brushes.White;
+            kingHead.Margin = new Thickness(0, -15, 0, 0);
+
+
+            Canvas1.Children.Add(kingBody);
+            //Canvas1.Children.Add(kingHead);
+            Canvas.SetLeft(kingBody, table_POS_X + x * CELL_WIDTH + 2);
+            Canvas.SetTop(kingBody, table_POS_Y + y * CELL_HEIGHT + 2);
+
+            //Canvas.SetLeft(kingHead, table_POS_X + x * CELL_WIDTH + CELL_WIDTH / 2 );
+            //Canvas.SetTop(kingHead, table_POS_Y + y * CELL_HEIGHT + CELL_WIDTH / 2 );
+
+
+        }
+
     }
 }
