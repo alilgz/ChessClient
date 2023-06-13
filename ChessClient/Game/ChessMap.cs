@@ -113,7 +113,7 @@ namespace ChessClient.Game
 
                     markerMap[newPos.x, newPos.y] = Figure.moveMarker;
                     if (takeFigure)
-                        continue ;
+                        continue;
 
                 }
                 else
@@ -136,7 +136,7 @@ namespace ChessClient.Game
             return markerMap;
         }
 
-        internal Figure[,] Merge(Figure[,] moveMap2, Figure[,] moveMap1)
+        internal Figure[,] MergeMaps(Figure[,] moveMap2, Figure[,] moveMap1)
         {
             Figure[,] temp = new Figure[8, 8];
 
@@ -145,20 +145,102 @@ namespace ChessClient.Game
                 for (int j = 0; j < 8; j++)
                 {
                     temp[i, j] = Figure.none;
-                    temp[i, j] = moveMap1[i,j] == Figure.moveMarker || moveMap2[i, j] == Figure.moveMarker ? Figure.moveMarker : Figure.none ;
+                    temp[i, j] = moveMap1[i, j] == Figure.moveMarker || moveMap2[i, j] == Figure.moveMarker ? Figure.moveMarker : Figure.none;
                 }
             }
             return temp;
         }
 
-        internal void excludeCheckMoves()
+        internal void excludeCheckMoves(ChessMap map, Figure piece, Position currentPos)
         {
-            ;
+            // current map is move map
+            // so we have to check every movement, if after  - there no checkmate - we keep it 
+            List<Position> posToClear = new List<Position>();
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    if (this.map[i, j] == Figure.moveMarker)
+                    {
+                        var newPosition = new Position(i, j);
+                        ChessMap nextPos = map.generateNextPositionMap(piece, currentPos, newPosition);
+                        if (nextPos.underCheck(piece.getColor()))
+                        {
+                            posToClear.Add(newPosition);
+                        }
+                    }
+                }
+            }
+
+            foreach (var pos in posToClear)
+            {
+                this.map[pos.x, pos.y] = Figure.none;
+            }
+
+
+
         }
 
-        internal bool underCheck()
+        private ChessMap generateNextPositionMap(Figure piece, Position currentPos, Position newPosition)
         {
+            var newMap = new ChessMap();
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    newMap.map[i, j] = this.map[i, j];
+                }
+            }
+            newMap.map[currentPos.x, currentPos.y] = Figure.none;
+            newMap.map[newPosition.x, newPosition.y] = piece;
+            return newMap;
+        }
+
+        private Position getKingPos(ChessColor kingColor)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    if (map[i, j] == Figure.bKing && kingColor == ChessColor.Black)
+                        return new Position(i, j);
+                    if (map[i, j] == Figure.wKing && kingColor == ChessColor.White)
+                        return new Position(i, j);
+                }
+            }
+            return null;
+        }
+
+        internal bool underCheck(ChessColor kingColor)
+        {
+            var kingPosition = this.getKingPos(kingColor);
+            if (kingPosition == null)
+                return false;
+
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    var piece = this.map[i, j];
+                    if (piece != Figure.none && piece != Figure.moveMarker)
+                    {
+                        if (piece.getColor() != kingColor)
+                        {
+                            var pieceMoveMap = piece.getPossibleMoves(this, new Position(i, j), true);
+                            if (pieceMoveMap.map[kingPosition.x, kingPosition.y] == Figure.moveMarker)
+                                return true;
+
+                        }
+                    }
+
+                }
+            }
+
             return false;
         }
+
+
+
+
     }
 }

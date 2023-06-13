@@ -33,6 +33,7 @@ namespace ChessClient.resources
 
                         pieces.Add(i, new ImageBrush(theImage)
                         {
+                            Stretch = Stretch.Uniform
                         });
                     }
                     catch

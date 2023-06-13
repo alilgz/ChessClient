@@ -62,7 +62,7 @@ namespace ChessClient
                 a += i;
                 lab2.Content = ((char)a).ToString();
                 Canvas1.Children.Add(lab2);
-                Canvas.SetLeft(lab2, header_POS_x);
+                Canvas.SetLeft(lab2, header_POS_x); 
                 Canvas.SetTop(lab2, table_POS_Y + i * CELL_HEIGHT);
             }
             for (int i = 0; i < 8; i++)
