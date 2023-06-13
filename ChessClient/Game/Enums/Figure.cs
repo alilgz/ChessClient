@@ -16,7 +16,7 @@ namespace ChessClient.Game
             return piece == Figure.bPawn || piece == Figure.wPawn;
         }
 
-        public static ChessColor getColor(this Figure piece)
+        public static ChessColor GetColor(this Figure piece)
         {
             switch (piece)
             {
@@ -68,11 +68,7 @@ namespace ChessClient.Game
             var nextPositionMap = new ChessMap() { map = moveMap };
             if (!skipUnderCheck)
             {
-                
-                if (map.underCheck(piece.getColor()))
-                {
-                    nextPositionMap.excludeCheckMoves(map, piece, pos);
-                }
+                nextPositionMap.ExcludeCheckMoves(map, piece, pos);
             }
 
             return nextPositionMap;

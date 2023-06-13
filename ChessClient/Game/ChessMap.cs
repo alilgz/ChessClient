@@ -21,7 +21,7 @@ namespace ChessClient.Game
             if (!pos.IsValid() || map[pos.x, pos.y] == Figure.none)
                 return false;
 
-            var figureColor = map[pos.x, pos.y].getColor();
+            var figureColor = map[pos.x, pos.y].GetColor();
 
             return (
                     (figureColor == ChessColor.White && currentPlayer == ChessColor.White && currentStage == GameStage.WhiteSelect) ||
@@ -77,11 +77,11 @@ namespace ChessClient.Game
 
 
             // we cant move if there  our figure 
-            if (map[pos.x, pos.y].getColor() == myColor) // todo: check for castle 
+            if (map[pos.x, pos.y].GetColor() == myColor) // todo: check for castle 
                 return false;
 
             // we cant take opponent figure, but cant move after 
-            if (map[pos.x, pos.y].getColor() == opponentColor)
+            if (map[pos.x, pos.y].GetColor() == opponentColor)
             {
                 takenFigure = true;
                 return true;
@@ -95,7 +95,7 @@ namespace ChessClient.Game
             Figure[,] markerMap = new Figure[8, 8];
             Fill(markerMap, Figure.none);
 
-            ChessColor myColor = map[pos.x, pos.y].getColor();
+            ChessColor myColor = map[pos.x, pos.y].GetColor();
             ChessColor opponentColor = myColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
             foreach (var dir in pattern.directions)
             {
@@ -136,6 +136,29 @@ namespace ChessClient.Game
             return markerMap;
         }
 
+        internal bool HasNoMoves(ChessColor currentPlayer)
+        {
+            // there we check if specific side has at least one move out of check
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    var piece = this.map[i, j];
+                    if (piece == Figure.none)
+                        continue;
+                    if (piece.GetColor() != currentPlayer)
+                        continue;
+                    var figurePos = new Position(i, j);
+                    var moves = piece.getPossibleMoves(this, figurePos);
+                    if (!moves.Empty())
+                        return false;
+
+                }
+            }
+
+            return true;
+        }
+
         internal Figure[,] MergeMaps(Figure[,] moveMap2, Figure[,] moveMap1)
         {
             Figure[,] temp = new Figure[8, 8];
@@ -151,10 +174,10 @@ namespace ChessClient.Game
             return temp;
         }
 
-        internal void excludeCheckMoves(ChessMap map, Figure piece, Position currentPos)
+        internal void ExcludeCheckMoves(ChessMap map, Figure piece, Position currentPos)
         {
             // current map is move map
-            // so we have to check every movement, if after  - there no checkmate - we keep it 
+            // so we have to check every movement mark, if after move there no check state for us - we keep it 
             List<Position> posToClear = new List<Position>();
             for (int i = 0; i < 8; i++)
             {
@@ -163,25 +186,21 @@ namespace ChessClient.Game
                     if (this.map[i, j] == Figure.moveMarker)
                     {
                         var newPosition = new Position(i, j);
-                        ChessMap nextPos = map.generateNextPositionMap(piece, currentPos, newPosition);
-                        if (nextPos.underCheck(piece.getColor()))
+                        ChessMap nextPos = map.GenerateNextPositionMap(piece, currentPos, newPosition);
+                        if (nextPos.AreKingUnderAttack(piece.GetColor()))
                         {
                             posToClear.Add(newPosition);
                         }
                     }
                 }
             }
-
             foreach (var pos in posToClear)
             {
                 this.map[pos.x, pos.y] = Figure.none;
             }
-
-
-
         }
 
-        private ChessMap generateNextPositionMap(Figure piece, Position currentPos, Position newPosition)
+        private ChessMap GenerateNextPositionMap(Figure piece, Position currentPos, Position newPosition)
         {
             var newMap = new ChessMap();
             for (int i = 0; i < 8; i++)
@@ -196,7 +215,7 @@ namespace ChessClient.Game
             return newMap;
         }
 
-        private Position getKingPos(ChessColor kingColor)
+        private Position GetKingPos(ChessColor kingColor)
         {
             for (int i = 0; i < 8; i++)
             {
@@ -211,9 +230,9 @@ namespace ChessClient.Game
             return null;
         }
 
-        internal bool underCheck(ChessColor kingColor)
+        internal bool AreKingUnderAttack(ChessColor kingColor)
         {
-            var kingPosition = this.getKingPos(kingColor);
+            var kingPosition = this.GetKingPos(kingColor);
             if (kingPosition == null)
                 return false;
 
@@ -222,25 +241,24 @@ namespace ChessClient.Game
                 for (int j = 0; j < 8; j++)
                 {
                     var piece = this.map[i, j];
-                    if (piece != Figure.none && piece != Figure.moveMarker)
+                    
+                    if (piece == Figure.none) 
+                        continue;
+
+                    if (piece == Figure.moveMarker)
+                        continue;
+
+                    if (piece.GetColor() != kingColor)
                     {
-                        if (piece.getColor() != kingColor)
-                        {
-                            var pieceMoveMap = piece.getPossibleMoves(this, new Position(i, j), true);
-                            if (pieceMoveMap.map[kingPosition.x, kingPosition.y] == Figure.moveMarker)
-                                return true;
+                        var pieceMoveMap = piece.getPossibleMoves(this, new Position(i, j), true);
+                        if (pieceMoveMap.map[kingPosition.x, kingPosition.y] == Figure.moveMarker)
+                            return true;
 
-                        }
                     }
-
                 }
             }
-
             return false;
         }
-
-
-
 
     }
 }

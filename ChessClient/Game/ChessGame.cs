@@ -65,7 +65,8 @@ namespace ChessClient.Game
         }
 
 
-        public void MoveFigure(Position currentFigurePos, Position pos) {
+        public void MoveFigure(Position currentFigurePos, Position pos)
+        {
 
             var figure = map.map[currentFigurePos.x, currentFigurePos.y];
             map.map[currentFigurePos.x, currentFigurePos.y] = Figure.none; // todo : taken and castle 
@@ -79,6 +80,12 @@ namespace ChessClient.Game
             var nextStage = CurrentStage;
             switch (CurrentStage)
             {
+                case GameStage.WhiteWon:
+                case GameStage.BlackWon:
+                case GameStage.Tie:
+                    refresh = true;
+                    break;
+
                 case GameStage.WhiteSelect:
                 case GameStage.BlackSelect:
                     if (map.SelectedFigureIsValid(pos, CurrentPlayer, CurrentStage))
@@ -108,7 +115,18 @@ namespace ChessClient.Game
                         {
                             MoveFigure(currentFigurePos, pos);
                             possibleMoves.Clear();
-                            nextStage = CurrentStage.NextStage();
+
+                            if (map.AreKingUnderAttack(ChessColor.White) && map.HasNoMoves(ChessColor.White))
+                                nextStage = GameStage.BlackWon;
+                            else if (map.AreKingUnderAttack(ChessColor.Black) && map.HasNoMoves(ChessColor.Black))
+                                nextStage = GameStage.WhiteWon;
+                            else if (!map.AreKingUnderAttack(ChessColor.Black) && map.HasNoMoves(ChessColor.Black))
+                                nextStage = GameStage.Tie;
+                            else if (!map.AreKingUnderAttack(ChessColor.White) && map.HasNoMoves(ChessColor.White))
+                                nextStage = GameStage.Tie;
+                            else
+                                nextStage = CurrentStage.NextStage();
+
                             CurrentPlayer = (CurrentPlayer == ChessColor.White ? ChessColor.Black : ChessColor.White);
                             refresh = true;
                         }

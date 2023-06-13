@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -19,8 +20,8 @@ namespace ChessClient
         private ChessGame chessGame;
         int table_POS_X = 100;
         int table_POS_Y = 100;
-        int header_POS_y = 65;
-        int header_POS_x = 65;
+        int header_POS_Y = 65;
+        int header_POS_X = 65;
         int CELL_WIDTH = 52;
         int CELL_HEIGHT = 52;
         int figure_offset_x = 26;
@@ -40,31 +41,74 @@ namespace ChessClient
         {
             var white = new SolidColorBrush(WhiteCellColor);
             var black = new SolidColorBrush(BlackCellColor);
-            List<Rectangle> cells = new List<Rectangle>();
 
             for (int i = 0; i < 8; i++)
             {
-                Label lab1 = new Label();
-                lab1.Width = 25;
-                lab1.Height = 25;
-                lab1.VerticalAlignment = VerticalAlignment.Center;
-                lab1.BorderBrush = Brushes.Black;
-                lab1.Content = (i + 1).ToString();
-                Canvas1.Children.Add(lab1);
-                Canvas.SetLeft(lab1, table_POS_X + i * CELL_WIDTH);
-                Canvas.SetTop(lab1, header_POS_y);
-
-                Label lab2 = new Label();
-                lab2.Width = 25;
-                lab2.Height = 25;
-                lab2.VerticalAlignment = VerticalAlignment.Center;
                 int a = (int)'A';
                 a += i;
-                lab2.Content = ((char)a).ToString();
-                Canvas1.Children.Add(lab2);
-                Canvas.SetLeft(lab2, header_POS_x); 
-                Canvas.SetTop(lab2, table_POS_Y + i * CELL_HEIGHT);
+
+                Label lab1Up = new Label()
+                {
+                    Width = 26,
+                    Height = 26,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    BorderBrush = Brushes.Black,
+                    Content = ((char)a).ToString(),
+                    BorderThickness = new Thickness(0)
+                };
+
+                Label lab1Down = new Label()
+                {
+                    Width = 26,
+                    Height = 26,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    BorderBrush = Brushes.Black,
+                    Content = ((char)a).ToString(),
+                    BorderThickness = new Thickness(0)
+                };
+
+                Canvas1.Children.Add(lab1Up);
+                Canvas1.Children.Add(lab1Down);
+
+                Canvas.SetLeft(lab1Up, table_POS_X + i * CELL_WIDTH + lab1Up.Width / 2);
+                Canvas.SetTop(lab1Up, table_POS_Y - lab1Up.Height);
+
+                Canvas.SetLeft(lab1Down, table_POS_X + i * CELL_WIDTH + lab1Down.Width / 2);
+                Canvas.SetTop(lab1Down, table_POS_Y + 8 * CELL_HEIGHT);
+
+
+                Label lab2Left = new Label()
+                {
+                    Width = 26,
+                    Height = 26,
+                    BorderBrush = Brushes.Black,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Content = (8 - i).ToString(),
+                    BorderThickness = new Thickness(0)
+                };
+                Label lab2Right = new Label()
+                {
+                    Width = 26,
+                    Height = 26,
+                    BorderBrush = Brushes.Black,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Content = (8 - i).ToString(),
+                    BorderThickness = new Thickness(0)
+                };
+                Canvas1.Children.Add(lab2Left);
+                Canvas1.Children.Add(lab2Right);
+
+                Canvas.SetLeft(lab2Left, header_POS_X + lab2Left.Width / 2);
+                Canvas.SetTop(lab2Left, table_POS_Y + i * CELL_HEIGHT + lab2Left.Height / 2);
+                Canvas.SetLeft(lab2Right, table_POS_X + 8 * CELL_WIDTH);
+                Canvas.SetTop(lab2Right, table_POS_Y + i * CELL_HEIGHT + lab2Right.Height / 2);
             }
+
+
             for (int i = 0; i < 8; i++)
                 for (int j = 0; j < 8; j++)
                 {
@@ -98,6 +142,33 @@ namespace ChessClient
 
         }
 
+        public void WinMessage(GameStage gs)
+        {
+            //PaintMap();
+            var text1 = gs == GameStage.WhiteWon ? "White" : "Black";
+            var text2 = "WON! ";
+            var color = gs == GameStage.BlackWon ? ChessColor.Black : ChessColor.White;
+
+            for (int i = 0; i < 5; i++)
+            {
+                PaintTextFigure(2 + i, 3, color, text1[i].ToString());
+                PaintTextFigure(2 + i, 4, color, text2[i].ToString());
+            }
+
+        }
+
+
+        public void TieMessage()
+        {
+            var text1 = "TIE";
+            for (int i = 0; i < 3; i++)
+            {
+                PaintTextFigure(2 + i, 2, Color.FromRgb(100, 0, 0), text1[i].ToString());
+                PaintTextFigure(3 + i, 3, Color.FromRgb(0, 100, 0), text1[i].ToString());
+                PaintTextFigure(4 + i, 4, Color.FromRgb(0, 0, 100), text1[i].ToString());
+            }
+        }
+
         private void PaintFigure(int i, int j, Figure figure)
         {
             switch (figure)
@@ -125,23 +196,25 @@ namespace ChessClient
 
         }
 
-        private void PaintKing(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "K"); 
+        private void PaintKing(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "K");
         private void PaintQueen(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "Q");
         private void PaintBishop(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "B");
         private void PaintKnight(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "N");
         private void PaintRook(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "R");
         private void PaintPawn(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "P");
-        private void PaintTextFigure(int x, int y, ChessColor c, string text)
+        private void PaintTextFigure(int x, int y, ChessColor c, string text) => PaintTextFigure(x, y, c == ChessColor.Black ? Color.FromRgb(1, 1, 1) : Color.FromRgb(220, 220, 220), text);
+
+        private void PaintTextFigure(int x, int y, Color c, string text)
         {
             TextBlock textBlock = new TextBlock();
-            textBlock.FontSize = 32;
+            textBlock.FontSize = 42;
+            textBlock.FontWeight = FontWeight.FromOpenTypeWeight(600);
             textBlock.Text = text;
-            textBlock.Foreground = new SolidColorBrush(c == ChessColor.Black ? Color.FromRgb(11, 11, 11) : Color.FromRgb(200, 200, 200));
+
+            textBlock.Foreground = new SolidColorBrush(c);
             Canvas1.Children.Add(textBlock);
-
-            Canvas.SetLeft(textBlock, table_POS_X + x * CELL_WIDTH);
-            Canvas.SetTop(textBlock, table_POS_Y + y * CELL_HEIGHT);
-
+            Canvas.SetLeft(textBlock, table_POS_X + x * CELL_WIDTH + figure_offset_x);
+            Canvas.SetTop(textBlock, table_POS_Y + y * CELL_HEIGHT + figure_offset_y);
         }
 
         private void PaintPicture(int x, int y, ChessColor c, ImageBrush brush)
@@ -151,8 +224,8 @@ namespace ChessClient
             myRectangle.Height = 50;
             myRectangle.Fill = brush;
             Canvas1.Children.Add(myRectangle);
-            Canvas.SetLeft(myRectangle, table_POS_X + x * CELL_WIDTH );
-            Canvas.SetTop(myRectangle, table_POS_Y + y * CELL_HEIGHT );
+            Canvas.SetLeft(myRectangle, table_POS_X + x * CELL_WIDTH);
+            Canvas.SetTop(myRectangle, table_POS_Y + y * CELL_HEIGHT);
 
         }
         private void PaintMarker(int x, int y, ChessColor c)
@@ -189,8 +262,23 @@ namespace ChessClient
             var pos = Mouse.GetPosition(sender as Canvas);
             var chessCell = ConvertToChessCoordinates(pos);
             chessGame.OnClick(chessCell, out var refresh);
+
             if (refresh)
                 RefreshBoard();
+
+            switch (chessGame.CurrentStage)
+            {
+                case GameStage.WhiteWon:
+                case GameStage.BlackWon:
+                    WinMessage(chessGame.CurrentStage);
+                    break;
+                case GameStage.Tie:
+                    TieMessage();
+                    break;
+                default:
+                    break;
+            }
+
         }
         private Position ConvertToChessCoordinates(Point pos)
         {
