@@ -144,17 +144,19 @@ namespace ChessClient
 
         public void WinMessage(GameStage gs)
         {
-            //PaintMap();
             var text1 = gs == GameStage.WhiteWon ? "White" : "Black";
             var text2 = "WON! ";
             var color = gs == GameStage.BlackWon ? ChessColor.Black : ChessColor.White;
 
-            for (int i = 0; i < 5; i++)
-            {
-                PaintTextFigure(2 + i, 3, color, text1[i].ToString());
-                PaintTextFigure(2 + i, 4, color, text2[i].ToString());
-            }
+            int col = 2;
+            var line = 3;
+            foreach (var letter in text1.Split(""))
+                PaintTextFigure(col++, line, color, letter);
 
+            col = 2;
+            line = 4;
+            foreach (var letter in text2.Split(""))
+                PaintTextFigure(col++, line, color, letter);
         }
 
 
@@ -171,39 +173,16 @@ namespace ChessClient
 
         private void PaintFigure(int i, int j, Figure figure)
         {
-            switch (figure)
-            {
-                case Figure.bRook:
-                case Figure.wRook:
-                case Figure.wBishop:
-                case Figure.bBishop:
-                case Figure.bKnight:
-                case Figure.wQueen:
-                case Figure.bQueen:
-                case Figure.wKing:
-                case Figure.wKnight:
-                case Figure.bKing:
-                case Figure.wPawn:
-                case Figure.bPawn:
-                    PaintPicture(i, j, ChessColor.Black, PNGReader.getChessSkin(figure));
-                    break;
-                case Figure.moveMarker:
-                    PaintMarker(i, j, ChessColor.Empty);
-                    break;
-                default:
-                    break;
-            }
+            if (figure == Figure.none)
+                return;
 
+            if (figure != Figure.moveMarker)
+                PaintPicture(i, j, PNGReader.getChessSkin(figure));
+            else
+                PaintMarker(i, j);
         }
 
-        private void PaintKing(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "K");
-        private void PaintQueen(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "Q");
-        private void PaintBishop(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "B");
-        private void PaintKnight(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "N");
-        private void PaintRook(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "R");
-        private void PaintPawn(int x, int y, ChessColor c) => PaintTextFigure(x, y, c, "P");
         private void PaintTextFigure(int x, int y, ChessColor c, string text) => PaintTextFigure(x, y, c == ChessColor.Black ? Color.FromRgb(1, 1, 1) : Color.FromRgb(220, 220, 220), text);
-
         private void PaintTextFigure(int x, int y, Color c, string text)
         {
             TextBlock textBlock = new TextBlock();
@@ -216,8 +195,7 @@ namespace ChessClient
             Canvas.SetLeft(textBlock, table_POS_X + x * CELL_WIDTH + figure_offset_x);
             Canvas.SetTop(textBlock, table_POS_Y + y * CELL_HEIGHT + figure_offset_y);
         }
-
-        private void PaintPicture(int x, int y, ChessColor c, ImageBrush brush)
+        private void PaintPicture(int x, int y, ImageBrush brush)
         {
             Rectangle myRectangle = new Rectangle();
             myRectangle.Width = 50;
@@ -228,7 +206,7 @@ namespace ChessClient
             Canvas.SetTop(myRectangle, table_POS_Y + y * CELL_HEIGHT);
 
         }
-        private void PaintMarker(int x, int y, ChessColor c)
+        private void PaintMarker(int x, int y)
         {
             var rb = new Rectangle();
 
@@ -239,7 +217,15 @@ namespace ChessClient
             Canvas.SetLeft(rb, table_POS_X + x * CELL_WIDTH + CELL_WIDTH / 2 - 5 / 2);
             Canvas.SetTop(rb, table_POS_Y + y * CELL_HEIGHT + CELL_WIDTH / 2 - 5 / 2);
         }
-
+        private void PaintUpgradeMenu(Position pos)
+        {
+            var start = pos.y == 0 ? 0 : 4;
+            for (int i = 0; i < 4; i++)
+            {
+                PaintPicture(pos.x, start + i, PNGReader.getChessSkin(FigureHelper.UpgradeMenu[start + i]));
+                PaintMarker(pos.x, start + i);
+            }
+        }
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
@@ -268,6 +254,10 @@ namespace ChessClient
 
             switch (chessGame.CurrentStage)
             {
+                case GameStage.WhiteUpgrade:
+                case GameStage.BlackUpgrade:
+                    PaintUpgradeMenu(chessCell);
+                    break;
                 case GameStage.WhiteWon:
                 case GameStage.BlackWon:
                     WinMessage(chessGame.CurrentStage);
@@ -288,38 +278,6 @@ namespace ChessClient
             return result;
         }
 
-
-        private void DrawChessKing(int x, int y, ChessColor c)
-        {
-
-            Path kingBody = new Path();
-            //            kingBody.Data = Geometry.Parse("M0 0 L100 0 Q150 50 100 100 L0 100 Q50 50 0 0z");
-            kingBody.Data = Geometry.Parse("M5 50 L10 0 L40 0 L45 50z");
-            kingBody.Fill = c == ChessColor.Black ? Brushes.Black : Brushes.White;
-
-            PathGeometry kingCrown = new PathGeometry();
-            PathFigure figure = new PathFigure();
-            figure.StartPoint = new Point(5, 0);
-            figure.Segments.Add(new LineSegment(new Point(25, 20), true));
-            figure.Segments.Add(new LineSegment(new Point(45, 0), true));
-            kingCrown.Figures.Add(figure);
-
-            Path kingHead = new Path();
-            kingHead.Data = kingCrown;
-            kingBody.Fill = c == ChessColor.Black ? Brushes.Black : Brushes.White;
-            kingHead.Margin = new Thickness(0, -15, 0, 0);
-
-
-            Canvas1.Children.Add(kingBody);
-            //Canvas1.Children.Add(kingHead);
-            Canvas.SetLeft(kingBody, table_POS_X + x * CELL_WIDTH + 2);
-            Canvas.SetTop(kingBody, table_POS_Y + y * CELL_HEIGHT + 2);
-
-            //Canvas.SetLeft(kingHead, table_POS_X + x * CELL_WIDTH + CELL_WIDTH / 2 );
-            //Canvas.SetTop(kingHead, table_POS_Y + y * CELL_HEIGHT + CELL_WIDTH / 2 );
-
-
-        }
 
     }
 }

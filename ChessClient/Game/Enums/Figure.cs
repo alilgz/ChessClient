@@ -10,7 +10,9 @@ namespace ChessClient.Game
 
     public static class FigureHelper
     {
-
+        public static readonly Figure[] blackFigures = new Figure[] { Figure.bKing, Figure.bQueen, Figure.bPawn, Figure.bKnight, Figure.bBishop, Figure.bRook };
+        public static readonly Figure[] whiteFigures = new Figure[] { Figure.wKing, Figure.wQueen, Figure.wPawn, Figure.wKnight, Figure.wBishop, Figure.wRook };
+        public static readonly Figure[] UpgradeMenu  = new Figure[] { Figure.wQueen, Figure.wKnight, Figure.wRook, Figure.wBishop, Figure.bBishop, Figure.bRook, Figure.bKnight, Figure.bQueen };
         public static bool isPawn(this Figure piece)
         {
             return piece == Figure.bPawn || piece == Figure.wPawn;
@@ -46,11 +48,11 @@ namespace ChessClient.Game
             Direction pattern = null;
             Direction patternAttack = null;
             Direction patternMove = null;
-            pattern = getFigureDirections(piece, pos);
+            pattern = getFigureDirections(piece, pos, map);
             if (piece.isPawn())
             {
-                patternAttack = getFigureDirections(piece, pos, attack: true);
-                patternMove = getFigureDirections(piece, pos, move: true);
+                patternAttack = getFigureDirections(piece, pos, map, attack: true);
+                patternMove = getFigureDirections(piece, pos, map, move: true);
             }
 
             Figure[,] moveMap = null;
@@ -74,7 +76,7 @@ namespace ChessClient.Game
             return nextPositionMap;
         }
 
-        private static Direction getFigureDirections(Figure piece, Position pos, bool attack = false, bool move = false)
+        private static Direction getFigureDirections(Figure piece, Position pos, ChessMap map, bool attack = false,   bool move = false)
         {
             Direction pattern = null;
             switch (piece)
@@ -107,7 +109,7 @@ namespace ChessClient.Game
                     if (move)
                     {
                         pattern = Direction.getBlackPawnDirection(false);
-                        if (pos.y != 1)
+                        if (pos.y != 1 || map.map[pos.x, 2] != Figure.none)
                         {
                             pattern.directions.RemoveAt(1);
                         }
@@ -122,7 +124,7 @@ namespace ChessClient.Game
                     if (move)
                     {
                         pattern = Direction.getwhitePawnDirection(false);
-                        if (pos.y != 6)
+                        if (pos.y != 6 || map.map[pos.x, 5] != Figure.none) // pawn can't jump over figure and cant move x2 from other than start position 
                         {
                             pattern.directions.RemoveAt(1);
                         }

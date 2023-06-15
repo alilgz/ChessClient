@@ -32,8 +32,8 @@ namespace ChessClient.Game
             map.map[6, 0] = Figure.bKnight;
             map.map[2, 0] = Figure.bBishop;
             map.map[5, 0] = Figure.bBishop;
-            map.map[3, 0] = Figure.bKing;
-            map.map[4, 0] = Figure.bQueen;
+            map.map[4, 0] = Figure.bKing;
+            map.map[3, 0] = Figure.bQueen;
 
             map.map[0, 1] = Figure.bPawn;
             map.map[1, 1] = Figure.bPawn;
@@ -59,8 +59,8 @@ namespace ChessClient.Game
             map.map[6, 7] = Figure.wKnight;
             map.map[2, 7] = Figure.wBishop;
             map.map[5, 7] = Figure.wBishop;
-            map.map[3, 7] = Figure.wKing;
-            map.map[4, 7] = Figure.wQueen;
+            map.map[4, 7] = Figure.wKing;
+            map.map[3, 7] = Figure.wQueen;
 
         }
 
@@ -85,7 +85,18 @@ namespace ChessClient.Game
                 case GameStage.Tie:
                     refresh = true;
                     break;
-
+                case GameStage.WhiteUpgrade:
+                case GameStage.BlackUpgrade:
+                    // here we convert click on chess map into menu click position ad pick figure to replace
+                    if (IsValidUpgradeMenuItem(CurrentPlayer, pos))
+                    {
+                        UpgradeFigure(currentFigurePos, pos);
+                        possibleMoves.Clear();
+                        nextStage = CurrentStage.NextStage();
+                        CurrentPlayer = (CurrentPlayer == ChessColor.White ? ChessColor.Black : ChessColor.White);
+                        refresh = true;
+                    }
+                    break;
                 case GameStage.WhiteSelect:
                 case GameStage.BlackSelect:
                     if (map.SelectedFigureIsValid(pos, CurrentPlayer, CurrentStage))
@@ -95,6 +106,7 @@ namespace ChessClient.Game
                         {
                             nextStage = CurrentStage.NextStage();
                             currentFigurePos = pos;
+                            
                             refresh = true;
                         }
                     }
@@ -113,6 +125,12 @@ namespace ChessClient.Game
                     {
                         if (possibleMoves.map[pos.x, pos.y] == Figure.moveMarker)
                         {
+                            if (PawnMovedToLastLine(currentFigurePos, pos))
+                            {
+                                possibleMoves.Clear();
+                                nextStage = CurrentStage == GameStage.WhiteMove ? GameStage.WhiteUpgrade : GameStage.BlackUpgrade;
+                                break;
+                            }
                             MoveFigure(currentFigurePos, pos);
                             possibleMoves.Clear();
 
@@ -141,6 +159,39 @@ namespace ChessClient.Game
                     break;
             }
             CurrentStage = nextStage;
+        }
+
+        private void UpgradeFigure(Position currentFigurePos, Position pos)
+        {
+            var pawn = map[currentFigurePos];
+            var color = pawn.GetColor();
+            Figure upgraded = Figure.none;
+            
+            upgraded = FigureHelper.UpgradeMenu[pos.y];
+
+            var newY = currentFigurePos.y == 1 ? 0 : 7;
+
+            map[currentFigurePos] = Figure.none;
+            map.map[pos.x, newY] = upgraded;
+        }
+
+        private bool IsValidUpgradeMenuItem(ChessColor player, Position pos)
+        {
+            // white q, kn, r, b, 
+            // 0,0 - upper left , white
+            // 7,7 lower, right , black
+            
+            return player == ChessColor.White && pos.y <= 3 || player == ChessColor.Black && pos.y >= 4;
+        }
+
+        private bool PawnMovedToLastLine(Position currentFigurePos, Position pos)
+        {
+            var currFigure = map[currentFigurePos];
+            if (!currFigure.isPawn())
+                return false;
+            var color = currFigure.GetColor();
+
+            return (color == ChessColor.White && pos.y == 0) || (color == ChessColor.Black && pos.y == 7);
         }
     }
 }

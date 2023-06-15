@@ -5,7 +5,7 @@ using System.Text;
 namespace ChessClient.Game
 {
 
-    public enum GameStage { WhiteSelect, WhiteMove, BlackSelect, BlackMove, BlackWon, WhiteWon, Tie };
+    public enum GameStage { WhiteSelect, WhiteMove, BlackSelect, BlackMove, BlackWon, WhiteUpgrade, BlackUpgrade, WhiteWon, Tie };
     public static class StageHelper
     {
         public static GameStage NextStage(this GameStage stage)
@@ -20,6 +20,11 @@ namespace ChessClient.Game
                     return GameStage.WhiteSelect;
                 case GameStage.WhiteMove:
                     return GameStage.BlackSelect;
+                case GameStage.WhiteUpgrade:
+                    return GameStage.BlackSelect;
+                case GameStage.BlackUpgrade:
+                    return GameStage.WhiteSelect;
+
             }
             return GameStage.WhiteSelect;
         }
@@ -36,7 +41,7 @@ namespace ChessClient.Game
         }
 
 
-        
+
 
     }
 

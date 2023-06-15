@@ -33,10 +33,10 @@
     <None Update="resources\chess-13.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="resources\chess-2.png">
+    <None Update="resources\chess-3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="resources\chess-3.png">
+    <None Update="resources\chess-2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="resources\chess-39310.png">

@@ -12,6 +12,17 @@ namespace ChessClient.Game
 
 
         }
+        public Figure this[Position index]
+        {
+            get
+            {
+                return map[index.x, index.y];
+            }
+            set
+            {
+                map[index.x, index.y] = value;
+            }
+        }
 
         internal bool SelectedFigureIsValid(Position pos, ChessColor currentPlayer, GameStage currentStage)
         {
@@ -30,6 +41,9 @@ namespace ChessClient.Game
                     (figureColor == ChessColor.Black && currentPlayer == ChessColor.Black && currentStage == GameStage.BlackMove)
                 );
         }
+
+
+
 
         public ChessMap CalculateMoves(Position pos)
         {
@@ -241,8 +255,8 @@ namespace ChessClient.Game
                 for (int j = 0; j < 8; j++)
                 {
                     var piece = this.map[i, j];
-                    
-                    if (piece == Figure.none) 
+
+                    if (piece == Figure.none)
                         continue;
 
                     if (piece == Figure.moveMarker)
