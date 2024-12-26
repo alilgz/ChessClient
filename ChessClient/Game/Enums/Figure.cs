@@ -18,7 +18,42 @@ namespace ChessClient.Game
             return piece == Figure.bPawn || piece == Figure.wPawn;
         }
 
-        public static ChessColor GetColor(this Figure piece)
+        public static bool isKing(this Figure piece)
+        {
+            return piece == Figure.bKing|| piece == Figure.wKing;
+        }
+        public static bool isRook(this Figure piece)
+        {
+            return piece == Figure.bRook|| piece == Figure.wRook;
+        }
+
+        public static string toString(this Figure piece)
+        {
+            switch (piece)
+            {
+                case Figure.bKing:
+                case Figure.wKing:
+                    return "K";
+                case Figure.bQueen:
+                case Figure.wQueen:
+                    return "Q";
+                case Figure.bKnight:
+                case Figure.wKnight:
+                    return "N";
+                case Figure.bBishop:
+                case Figure.wBishop:
+                    return "B";
+                case Figure.bPawn:
+                case Figure.wPawn:
+                    return "";
+                case Figure.bRook:
+                case Figure.wRook:
+                    return "R";
+            }
+            return "";
+        }
+
+            public static ChessColor GetColor(this Figure piece)
         {
             switch (piece)
             {
@@ -48,6 +83,8 @@ namespace ChessClient.Game
             Direction pattern = null;
             Direction patternAttack = null;
             Direction patternMove = null;
+            Direction patternCastle = null; 
+
             pattern = getFigureDirections(piece, pos, map);
             if (piece.isPawn())
             {
@@ -55,8 +92,20 @@ namespace ChessClient.Game
                 patternMove = getFigureDirections(piece, pos, map, move: true);
             }
 
+            if(!skipUnderCheck && piece.isKing())
+            {
+                // get
+                patternCastle = Direction.getCastling();
+            }
+
             Figure[,] moveMap = null;
-            if (patternAttack != null && patternMove != null)
+
+            if (patternCastle!= null )
+            {
+                var moveMap1 = map.CheckForCollision(patternCastle, pos, castling: true);
+                var moveMap2 = map.CheckForCollision(pattern, pos);
+                moveMap = map.MergeMaps(moveMap2, moveMap1);
+            } else  if (patternAttack != null && patternMove != null)
             {
                 var moveMap1 = map.CheckForCollision(patternAttack, pos, CanOnlyTake: true);
                 var moveMap2 = map.CheckForCollision(patternMove, pos, CanOnlyMove: true);

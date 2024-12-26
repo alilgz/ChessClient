@@ -24,10 +24,10 @@ namespace ChessClient.Game
                     return GameStage.BlackSelect;
                 case GameStage.BlackUpgrade:
                     return GameStage.WhiteSelect;
-
             }
             return GameStage.WhiteSelect;
         }
+
         public static GameStage PreviousStage(this GameStage stage)
         {
             switch (stage)
@@ -39,10 +39,5 @@ namespace ChessClient.Game
             }
             return stage;
         }
-
-
-
-
     }
-
 }

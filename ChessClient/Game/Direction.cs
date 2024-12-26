@@ -60,6 +60,20 @@ namespace ChessClient.Game
             };
         }
 
+
+        public static Direction getCastling()
+        {
+            return new Direction()
+            {
+                distance = 0,
+                directions = new List<Position> {
+                    new Position(-4, 0),
+                    new Position(3, 0)
+                }
+            };
+        }
+
+
         public static Direction getKingDirections()
         {
             var dir = getQueenDirections();

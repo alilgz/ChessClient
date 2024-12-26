@@ -8,14 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="chess-39310.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="chess-39310.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="resources\chess-0.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

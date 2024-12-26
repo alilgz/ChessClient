@@ -34,6 +34,15 @@ namespace ChessClient.Game
             return b != null && b is Position && ((Position)b).x == x && ((Position)b).y == y;
         }
 
+        public string ToString(bool onlyX = false)
+        {
+            if (!onlyX) return ToString();
+            return (x + 'A').ToString();
+        }
+        public override string ToString()
+        {
+            return (x + 'A').ToString() + " " +(8-y).ToString();
+        }
 
     }
 }

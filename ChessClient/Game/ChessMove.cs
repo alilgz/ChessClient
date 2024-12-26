@@ -5,8 +5,6 @@ using System.Text;
 namespace ChessClient.Game
 {
 
-
-
     public class ChessMove
     {
         // BoardHorizontal - Letter  a-h for white
@@ -18,5 +16,4 @@ namespace ChessClient.Game
             return (x + 'A').ToString() + "" + (8 - y).ToString();
         }
     }
-
 }

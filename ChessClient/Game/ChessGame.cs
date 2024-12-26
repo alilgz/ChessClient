@@ -13,7 +13,9 @@ namespace ChessClient.Game
         public ChessColor CurrentPlayer;
         public GameStage CurrentStage;
         public Position currentFigurePos;
-
+        private Figure lastTakenFigure = Figure.none; 
+        private CastlingStatus whiteCastle = CastlingStatus.getCastling();
+        private CastlingStatus blackCastle = CastlingStatus.getCastling();
         public ChessGame()
         {
             map = new ChessMap();
@@ -61,17 +63,14 @@ namespace ChessClient.Game
             map.map[5, 7] = Figure.wBishop;
             map.map[4, 7] = Figure.wKing;
             map.map[3, 7] = Figure.wQueen;
-
         }
 
-
-        public void MoveFigure(Position currentFigurePos, Position pos)
+        public void MoveFigure(Position currentPos, Position newPos, out Figure takenFigure)
         {
-
-            var figure = map.map[currentFigurePos.x, currentFigurePos.y];
-            map.map[currentFigurePos.x, currentFigurePos.y] = Figure.none; // todo : taken and castle 
-            map.map[pos.x, pos.y] = figure;
-
+            takenFigure = map[newPos];
+            var ourFigure = map[currentPos];
+            map[currentPos] = Figure.none; // todo : castle  ?
+            map[newPos] = ourFigure;
         }
 
         public void OnClick(Position pos, out bool refresh)
@@ -80,39 +79,50 @@ namespace ChessClient.Game
             var nextStage = CurrentStage;
             switch (CurrentStage)
             {
+                /* someone won or tie: there will be message */
                 case GameStage.WhiteWon:
                 case GameStage.BlackWon:
                 case GameStage.Tie:
                     refresh = true;
                     break;
+                /* click on menu to figure upgrade  */
                 case GameStage.WhiteUpgrade:
                 case GameStage.BlackUpgrade:
-                    // here we convert click on chess map into menu click position ad pick figure to replace
+                    // convert click on chess map into menu click position and pick figure to replace
                     if (IsValidUpgradeMenuItem(CurrentPlayer, pos))
                     {
                         UpgradeFigure(currentFigurePos, pos);
                         possibleMoves.Clear();
-                        nextStage = CurrentStage.NextStage();
-                        CurrentPlayer = (CurrentPlayer == ChessColor.White ? ChessColor.Black : ChessColor.White);
+                        nextStage = CheckIfGameDone(out bool cw, out bool cb);
                         refresh = true;
+                        lastTakenFigure = map[pos];
+                        var isKingAttacked = CurrentPlayer == ChessColor.White ? cw : cb;
+                        var isGameWon = CurrentPlayer == ChessColor.White ? nextStage == GameStage.WhiteWon : nextStage == GameStage.BlackWon;
+
+                        AddMove(ChessFigureMove.UpgradeMove(map, currentFigurePos, pos, lastTakenFigure, isKingAttacked, isGameWon));
+                        CurrentPlayer = (CurrentPlayer == ChessColor.White ? ChessColor.Black : ChessColor.White);
                     }
                     break;
+                    // if valid figure  selected - paint markers where it can be moved
                 case GameStage.WhiteSelect:
                 case GameStage.BlackSelect:
                     if (map.SelectedFigureIsValid(pos, CurrentPlayer, CurrentStage))
                     {
                         possibleMoves = map.CalculateMoves(pos);
-                        if (!possibleMoves.Empty())
-                        {
-                            nextStage = CurrentStage.NextStage();
-                            currentFigurePos = pos;
-                            
-                            refresh = true;
-                        }
+                        if (possibleMoves.Empty())
+                            break;
+
+                        nextStage = CurrentStage.NextStage();
+                        currentFigurePos = pos;
+                        refresh = true;
                     }
                     break;
+                // move figure to new pos, save taked figure(todo), save move in list 
+                // if same figure seleted - back to 'select mode'
+                // todo: if same color figure selected (and its not castle) - back to 'select mode'
                 case GameStage.WhiteMove:
                 case GameStage.BlackMove:
+                    UpdateCastlingStatus(currentFigurePos); // or we can replace this logic with checking list of moves - we can easy find if specific figures moved
                     if (pos.Equals(currentFigurePos))
                     {
                         //redo - same figure selected
@@ -131,27 +141,16 @@ namespace ChessClient.Game
                                 nextStage = CurrentStage == GameStage.WhiteMove ? GameStage.WhiteUpgrade : GameStage.BlackUpgrade;
                                 break;
                             }
-                            MoveFigure(currentFigurePos, pos);
+                            MoveFigure(currentFigurePos, pos, out lastTakenFigure);
                             possibleMoves.Clear();
-
-                            if (map.AreKingUnderAttack(ChessColor.White) && map.HasNoMoves(ChessColor.White))
-                                nextStage = GameStage.BlackWon;
-                            else if (map.AreKingUnderAttack(ChessColor.Black) && map.HasNoMoves(ChessColor.Black))
-                                nextStage = GameStage.WhiteWon;
-                            else if (!map.AreKingUnderAttack(ChessColor.Black) && map.HasNoMoves(ChessColor.Black))
-                                nextStage = GameStage.Tie;
-                            else if (!map.AreKingUnderAttack(ChessColor.White) && map.HasNoMoves(ChessColor.White))
-                                nextStage = GameStage.Tie;
-                            else
-                                nextStage = CurrentStage.NextStage();
+                            nextStage = CheckIfGameDone(out bool cw, out bool cb);
+                            var isKingAttacked = CurrentPlayer == ChessColor.White ? cw : cb;
+                            var isGameWon = CurrentPlayer == ChessColor.White ? nextStage == GameStage.WhiteWon : nextStage == GameStage.BlackWon;
+                            AddMove(ChessFigureMove.Move(map, currentFigurePos, pos, lastTakenFigure, isKingAttacked, isGameWon));
 
                             CurrentPlayer = (CurrentPlayer == ChessColor.White ? ChessColor.Black : ChessColor.White);
                             refresh = true;
-                        }
-                        else
-                        {
-                            // do nothing 
-                        }
+                        } 
                     }
 
                     //checkForCheck ?
@@ -161,16 +160,50 @@ namespace ChessClient.Game
             CurrentStage = nextStage;
         }
 
+        private void UpdateCastlingStatus(Position pos)
+        {
+            var figure = map[pos];
+            // todo: improve, unify for black             
+            if (CurrentPlayer == ChessColor.White)
+            {
+                if (!whiteCastle.PossibleLeft() && !whiteCastle.PossibleRight())
+                    return;
+
+                if (figure.isKing())
+                    whiteCastle.KingMoved = true;
+                if (figure.isRook() && pos.x ==0)
+                    whiteCastle.LeftRookMoved= true;
+                if (figure.isRook() && pos.x == 7)
+                    whiteCastle.RightRookMoved = true;
+            }
+        }
+
+        private void AddMove(ChessFigureMove move)
+        {
+          moves.Add(move);
+        }
+
+        public GameStage CheckIfGameDone(out  bool whiteKingAttacked, out bool blackKingAttacked)
+        {
+            blackKingAttacked = map.AreKingUnderAttack(ChessColor.Black);
+            whiteKingAttacked = map.AreKingUnderAttack(ChessColor.White);
+
+            if (whiteKingAttacked && map.HasNoMoves(ChessColor.White))
+                return GameStage.BlackWon;
+            else if (blackKingAttacked && map.HasNoMoves(ChessColor.Black))
+                return GameStage.WhiteWon;
+            else if (!blackKingAttacked && map.HasNoMoves(ChessColor.Black))
+                return GameStage.Tie;
+            else if (!whiteKingAttacked && map.HasNoMoves(ChessColor.White))
+                return GameStage.Tie;
+            else
+                return CurrentStage.NextStage();
+        }
+
         private void UpgradeFigure(Position currentFigurePos, Position pos)
         {
-            var pawn = map[currentFigurePos];
-            var color = pawn.GetColor();
-            Figure upgraded = Figure.none;
-            
-            upgraded = FigureHelper.UpgradeMenu[pos.y];
-
+            Figure upgraded =  FigureHelper.UpgradeMenu[pos.y];
             var newY = currentFigurePos.y == 1 ? 0 : 7;
-
             map[currentFigurePos] = Figure.none;
             map.map[pos.x, newY] = upgraded;
         }
@@ -180,7 +213,7 @@ namespace ChessClient.Game
             // white q, kn, r, b, 
             // 0,0 - upper left , white
             // 7,7 lower, right , black
-            
+
             return player == ChessColor.White && pos.y <= 3 || player == ChessColor.Black && pos.y >= 4;
         }
 

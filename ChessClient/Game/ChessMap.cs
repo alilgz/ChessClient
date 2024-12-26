@@ -10,14 +10,10 @@ namespace ChessClient.Game
         public ChessMap()
         {
 
-
         }
         public Figure this[Position index]
         {
-            get
-            {
-                return map[index.x, index.y];
-            }
+            get => map[index.x, index.y];
             set
             {
                 map[index.x, index.y] = value;
@@ -29,10 +25,10 @@ namespace ChessClient.Game
             //check if there figure 
             // check if color related to stage
             // 
-            if (!pos.IsValid() || map[pos.x, pos.y] == Figure.none)
+            if (!pos.IsValid() || this[pos] == Figure.none)
                 return false;
 
-            var figureColor = map[pos.x, pos.y].GetColor();
+            var figureColor = this[pos].GetColor();
 
             return (
                     (figureColor == ChessColor.White && currentPlayer == ChessColor.White && currentStage == GameStage.WhiteSelect) ||
@@ -42,16 +38,14 @@ namespace ChessClient.Game
                 );
         }
 
-
-
-
         public ChessMap CalculateMoves(Position pos)
         {
-            var piece = map[pos.x, pos.y];
+            var piece = this[pos];
             return piece.getPossibleMoves(this, pos);
         }
 
-        internal bool Empty()
+        public bool Any => !Empty();
+        public bool Empty()
         {
             foreach (var r in map)
             {
@@ -66,7 +60,6 @@ namespace ChessClient.Game
             Fill(map, Figure.none);
         }
 
-
         private void Fill(Figure[,] map, Figure f)
         {
             for (int i = 0; i < 8; i++)
@@ -76,11 +69,9 @@ namespace ChessClient.Game
                     map[i, j] = f;
                 }
             }
-
         }
 
-
-        public bool CanMoveToPosition(Position pos, ChessColor myColor, out bool takenFigure)
+        public bool CanMoveToPosition(Position pos, ChessColor myColor, out bool takenFigure, bool castling = false)
         {
             takenFigure = false;
             if (!pos.IsValid())
@@ -91,11 +82,11 @@ namespace ChessClient.Game
 
 
             // we cant move if there  our figure 
-            if (map[pos.x, pos.y].GetColor() == myColor) // todo: check for castle 
+            if (this[pos].GetColor() == myColor && !castling) // todo: check for castle 
                 return false;
 
             // we cant take opponent figure, but cant move after 
-            if (map[pos.x, pos.y].GetColor() == opponentColor)
+            if (this[pos].GetColor() == opponentColor)
             {
                 takenFigure = true;
                 return true;
@@ -104,7 +95,7 @@ namespace ChessClient.Game
             return true;
         }
 
-        internal Figure[,] CheckForCollision(Direction pattern, Position pos, bool CanOnlyTake = false, bool CanOnlyMove = false)
+        internal Figure[,] CheckForCollision(Direction pattern, Position pos, bool CanOnlyTake = false, bool CanOnlyMove = false, bool castling = false)
         {
             Figure[,] markerMap = new Figure[8, 8];
             Fill(markerMap, Figure.none);
@@ -116,7 +107,7 @@ namespace ChessClient.Game
                 if (pattern.distance == 0)
                 {
                     var newPos = pos + dir;
-                    if (!CanMoveToPosition(newPos, myColor, out var takeFigure))
+                    if (!CanMoveToPosition(newPos, myColor, out var takeFigure, castling: castling))
                         continue;
 
                     if (CanOnlyMove && takeFigure)
@@ -166,10 +157,8 @@ namespace ChessClient.Game
                     var moves = piece.getPossibleMoves(this, figurePos);
                     if (!moves.Empty())
                         return false;
-
                 }
             }
-
             return true;
         }
 
@@ -267,12 +256,10 @@ namespace ChessClient.Game
                         var pieceMoveMap = piece.getPossibleMoves(this, new Position(i, j), true);
                         if (pieceMoveMap.map[kingPosition.x, kingPosition.y] == Figure.moveMarker)
                             return true;
-
                     }
                 }
             }
             return false;
         }
-
     }
 }
