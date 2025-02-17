@@ -12,10 +12,10 @@ jobs:
       - id: create-path
         shell: pwsh
         run: |
-          path = ''
-          path = ${{ github.event.ref }}
-          path = $path.Replace('Del', 'Add')
-          echo "path = ${{ path }}" >> $GITHUB_OUTPUT
+         REPO=$GITHUB_REPOSITORY
+         DB_NAME="${REPO//-/_}"
+         echo $DB_NAME    
+         echo "path = ${{  $DB_NAME }}" >> $GITHUB_OUTPUT
 
   Clean:          
     name: Clean
