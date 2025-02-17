@@ -20,20 +20,14 @@ jobs:
          DB_NAME = "${REPO//-/_}"
          echo $DB_NAME    
          echo "path = ${{ DB_NAME }}" >> $GITHUB_OUTPUT
-    
-    - name: Checkout
     - uses: actions/checkout@v4
-    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-         
     - name: Restore dependencies
       run: dotnet restore ChessClient
-       
     - name: Build
       run: dotnet build ChessClient --no-restore
-       
     - name: Test
       run: dotnet test ChessClient --no-build --verbosity normal
