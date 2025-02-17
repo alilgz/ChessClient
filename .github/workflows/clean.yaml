@@ -1,5 +1,7 @@
 name: Branch Deleted
+
 on: delete
+
 jobs:
   Prepare:
     name: Prepare
@@ -10,9 +12,9 @@ jobs:
       - id: create-path
         shell: pwsh
         run: |
-          $path = ${{ github.event.ref }}
+          $path = "${{ github.event.ref }}"
           $path = $path.Replace('Del', 'Add')
-          echo "path=${{ path }}". >> $GITHUB_OUTPUT
+          echo "path = ${{ path }}" >> $GITHUB_OUTPUT
 
   Clean:          
     name: Clean
