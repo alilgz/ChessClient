@@ -18,7 +18,7 @@ jobs:
       run: |
          REPO = $${{ github.event.ref }}
          DB_NAME = "${REPO//-/_}"
-         echo "path = ${{ DB_NAME }}" >> $GITHUB_OUTPUT
+         echo "path = $DB_NAME" >> $GITHUB_OUTPUT
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
