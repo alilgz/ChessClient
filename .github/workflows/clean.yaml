@@ -8,6 +8,7 @@ jobs:
       path: ${{ steps.create-path.outputs.path }}
     steps:
       - id: create-path
+        shell: pwsh
         run: |
           $path = ${{ github.event.ref }}
           $path = $path.Replace('Del', 'Add')
