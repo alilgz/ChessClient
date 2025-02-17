@@ -12,9 +12,9 @@ jobs:
       - id: create-path
         shell: pwsh
         run: |
-          $path = ''
-          $path = ${{ github.event.ref }}
-          $path = $path.Replace('Del', 'Add')
+          path = ''
+          path = ${{ github.event.ref }}
+          path = $path.Replace('Del', 'Add')
           echo "path = ${{ path }}" >> $GITHUB_OUTPUT
 
   Clean:          
