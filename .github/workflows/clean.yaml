@@ -9,19 +9,13 @@ jobs:
     outputs:
       path: ${{ steps.create.outputs.path }}
     steps:
-	
-	  - uses: actions/checkout@v1
-	  - name: Script
-		run: Get-Module -ListAvailable
-		shell: pwsh
-		
-	  - id: create
-		shell: pwsh
-		run: |
-		  REPO = $${{ github.event.ref }}
-		  DB_NAME = "${REPO//-/_}"
-		  echo $DB_NAME    
-		  echo "path = ${{  $DB_NAME }}" >> $GITHUB_OUTPUT
+      - id: create
+        shell: pwsh
+        run: |
+          REPO = $${{ github.event.ref }}
+          DB_NAME = "${REPO//-/_}"
+          echo $DB_NAME    
+          echo "path = ${{  $DB_NAME }}" >> $GITHUB_OUTPUT
 
   Clean:          
     name: Clean
@@ -29,12 +23,12 @@ jobs:
     needs: Prepare
     steps:
       - name: Clean up - Branch
-		if: github.event.ref_type == 'branch'
-		run: |
-		  echo "prepared path = ${{ needs.Prepare.outputs.path }}"
-		  echo "Clean up for BRANCH ${{ github.event.ref }}"
+        if: github.event.ref_type == 'branch'
+        run: |
+          echo "prepared path = ${{ needs.Prepare.outputs.path }}"
+          echo "Clean up for BRANCH ${{ github.event.ref }}"
 
       - name: Clean up TAG
         if: github.event.ref_type == 'tag'
         run: |
-		  echo "Clean up for TAG ${{ github.event.ref }}"
+          echo "Clean up for TAG ${{ github.event.ref }}"
