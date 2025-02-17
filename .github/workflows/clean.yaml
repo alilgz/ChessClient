@@ -15,7 +15,7 @@ jobs:
           REPO = $${{ github.event.ref }}
           DB_NAME = "${REPO//-/_}"
           echo $DB_NAME    
-          echo "path = ${{  DB_NAME }}" >> $GITHUB_OUTPUT
+          echo "path = ${{ DB_NAME }}" >> $GITHUB_OUTPUT
 
   Clean:          
     name: Clean
