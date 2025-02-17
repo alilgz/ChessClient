@@ -1,13 +1,25 @@
 name: Branch Deleted
 on: delete
 jobs:
-  delete:
+  Prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      path: ${{ steps.create-path.outputs.path }}
+    steps:
+      - id: create-path
+        run: |
+          echo "path=${{ github.event.ref }}".Replace('Del', 'Add') >> $GITHUB_OUTPUT
+
+  Clean:          
     name: Clean
     runs-on: ubuntu-latest
+    needs: Prepare
     steps:
       - name: Clean up - Branch
         if: github.event.ref_type == 'branch'
         run: |
+          echo "prepared path = ${{ needs.Prepare.outputs.path }}"
           echo "Clean up for BRANCH ${{ github.event.ref }}"
 
       - name: Clean up TAG
