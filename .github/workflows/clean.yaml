@@ -9,7 +9,9 @@ jobs:
     steps:
       - id: create-path
         run: |
-          echo "path=${{ github.event.ref }}".Replace('Del', 'Add') >> $GITHUB_OUTPUT
+          $path = ${{ github.event.ref }}
+          $path = $path.Replace('Del', 'Add')
+          echo "path=${{ path }}". >> $GITHUB_OUTPUT
 
   Clean:          
     name: Clean
