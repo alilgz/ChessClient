@@ -16,8 +16,8 @@ jobs:
     - name: Path
       shell: pwsh
       run: |
-         REPO = $${{ github.event.ref }}
-         DB_NAME = "${REPO//-/_}"
+         REPO = ${{ github.event.ref }}
+         DB_NAME = "${{REPO//-/_}}"
          echo "path = $DB_NAME" >> $GITHUB_OUTPUT
     - uses: actions/checkout@v4
     - name: Setup .NET
