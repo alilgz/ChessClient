@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: check test file
         run: |
-          git -checkout ${{ github.event.ref }} --text.txt
+          git checkout ${{ github.event.ref }} --text.txt
           cat test.txt
 
       - name: Clean up - Branch
