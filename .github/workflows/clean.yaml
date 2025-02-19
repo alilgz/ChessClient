@@ -3,29 +3,19 @@ name: Branch Deleted
 on: delete
 
 jobs:
-  Prepare:
-    name: Prepare
-    runs-on: ubuntu-latest
-    outputs:
-      path: ${{ steps.create.outputs.path }}
-    steps:
-      - id: create
-        shell: pwsh
-        run: |
-          REPO = $${{ github.event.ref }}
-          DB_NAME = "${REPO//-/_}"
-          echo $DB_NAME    
-          echo "path = ${{ DB_NAME }}" >> $GITHUB_OUTPUT
 
   Clean:          
     name: Clean
     runs-on: ubuntu-latest
-    needs: Prepare
     steps:
+      - name: check test file
+        run: |
+          git -checkout ${{ github.event.ref }} --text.txt
+          cat test.txt
+
       - name: Clean up - Branch
         if: github.event.ref_type == 'branch'
         run: |
-          echo "prepared path = ${{ needs.Prepare.outputs.path }}"
           echo "Clean up for BRANCH ${{ github.event.ref }}"
 
       - name: Clean up TAG
