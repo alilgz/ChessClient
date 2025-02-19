@@ -1,0 +1,29 @@
+name: Branch Merged 
+
+on:
+  pull_request:
+    types: [closed]
+jobs:
+
+  Clean:          
+    name: Clean
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+                           text.txt
+          sparse-checkout-cone-mode: false
+              
+      - name: view test file
+        run: cat test.txt
+      
+      - name: Clean up - Branch
+        if: github.event.ref_type == 'branch'
+        run: |
+          echo "Clean up for BRANCH ${{ github.event.ref }}"
+
+      - name: Clean up TAG
+        if: github.event.ref_type == 'tag'
+        run: |
+          echo "Clean up for TAG ${{ github.event.ref }}"
