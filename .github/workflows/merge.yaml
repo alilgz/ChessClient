@@ -5,25 +5,13 @@ on:
     types: [closed]
 jobs:
 
-  Clean:          
-    name: Clean
+  CLOSED:          
+    name: PR CLOSED
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-                           text.txt
-          sparse-checkout-cone-mode: false
-              
-      - name: view test file
-        run: cat test.txt
-      
-      - name: Clean up - Branch
-        if: github.event.ref_type == 'branch'
+      - name: TEST
         run: |
-          echo "Clean up for BRANCH ${{ github.event.ref }}"
-
-      - name: Clean up TAG
-        if: github.event.ref_type == 'tag'
-        run: |
+          echo "PR WAS CLOSED"
           echo "Clean up for TAG ${{ github.event.ref }}"
+          echo "Clean up for TAG ${{ github.event.ref_type }}"
+          
