@@ -38,6 +38,7 @@ jobs:
           }
 
       - name: remove User branch
+        shell: pwsh
         #Delete user branch when merging into BUILD/{{TERM}} branch.
         if: startsWith(github.event.pull_request.base.ref, 'BUILD/')
         run: |
@@ -49,6 +50,7 @@ jobs:
           }
           
       - name: remove Build branch
+        shell: pwsh
         #Delete BUILD/{{TERM}} branch and S3 artifacts when merging into DEVELOP branch.
         if:  startsWith(github.event.pull_request.head.ref, 'BUILD/') && ${{ github.event.pull_request.base.ref == 'DEVELOP'}} 
         run: |
@@ -60,6 +62,7 @@ jobs:
           }
 
       - name: remove SP  branch
+        shell: pwsh
         #Delete SP/{{VERSION}}/{{JIRA-ID}} branch and S3 artifacts when merging into SP/{{VERSION}} branch.
         if: startsWith(github.event.pull_request.base.ref, 'SP/') &&  startsWith(github.event.pull_request.head.ref, 'SP/') 
         run: |
@@ -72,6 +75,7 @@ jobs:
           }
 
       - name: removing head branch
+        shell: pwsh
         if:   ${{ env.REMOVE_BRANCH }} 
         run: |
           echo " branch ${{ github.event.pull_request.head.ref}} removed "
