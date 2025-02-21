@@ -28,7 +28,7 @@ jobs:
         if:   ${{ github.event.pull_request.base.ref == 'MAIN' }} && startsWith(github.event.pull_request.head.ref, 'RELEASE/')
         run: |
           head_ref="${{ github.event.pull_request.head.ref }}"
-          if [[ "$head_ref" =~ "^RELEASE/v[\.\d]+$" ]]; then
+          if [[ "$head_ref" =~ "^RELEASE\/v[\.\d]+$" ]]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
           fi
