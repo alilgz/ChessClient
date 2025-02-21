@@ -13,6 +13,7 @@ jobs:
       - name: test step on merged PR
         run: |
           echo "TEST MERGED"
+          echo "v = ${{ github.event.pull_request.merged }} "
 
   test2-job:
     if:   ${{  github.event.pull_request.merged !='true' }} 
@@ -21,6 +22,7 @@ jobs:
       - name: trst step on closed PR 
         run: |
           echo "TEST CLOSED"
+          echo "v = ${{ github.event.pull_request.merged }} "
 
 
 
