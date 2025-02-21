@@ -22,7 +22,7 @@ jobs:
           if ($head_ref -match '^RELEASE\/v[.\d]+/([-\\w\\d]+)$' -and $base_ref -match '^RELEASE/v[.\d]+$') 
           {
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "PATTERN_MATCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            echo "REMOVE_BRANCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           }
           
       - name: remove Release/version branch (merged to MAIN)
@@ -31,41 +31,45 @@ jobs:
         if:   ${{ github.event.pull_request.base.ref == 'MAIN' }} && startsWith(github.event.pull_request.head.ref, 'RELEASE/')
         run: |
           $head_ref="${{ github.event.pull_request.head.ref }}"
-          if ( $head_ref -match "^RELEASE\/v[\.\d]+$" ) {
+          if ( $head_ref -match "^RELEASE\/v[\.\d]+$" ) 
+          {
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "PATTERN_MATCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            echo "REMOVE_BRANCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           }
 
       - name: remove User branch
         #Delete user branch when merging into BUILD/{{TERM}} branch.
         if: startsWith(github.event.pull_request.base.ref, 'BUILD/')
         run: |
-          base_ref="${{ github.event.pull_request.base.ref }}"
-          if [[ "$base_ref" =~ '^BUILD/[-\w\d]+$']]; then
+          $base_ref="${{ github.event.pull_request.base.ref }}"
+          if ( "$base_ref" -match '^BUILD/[-\w\d]+$')
+          {
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
-          fi
+            echo "REMOVE_BRANCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
           
       - name: remove Build branch
         #Delete BUILD/{{TERM}} branch and S3 artifacts when merging into DEVELOP branch.
         if:  startsWith(github.event.pull_request.head.ref, 'BUILD/') && ${{ github.event.pull_request.base.ref == 'DEVELOP'}} 
         run: |
-          head_ref="${{ github.event.pull_request.head.ref }}"
-          if [[ "$head_ref" =~ '^BUILD/[-\w\d]+$' ]]; then
+          $head_ref = "${{ github.event.pull_request.head.ref }}"
+          if ( $head_ref -match '^BUILD/[-\w\d]+$' )
+          {
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
-          fi
+            echo "REMOVE_BRANCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
 
       - name: remove SP  branch
         #Delete SP/{{VERSION}}/{{JIRA-ID}} branch and S3 artifacts when merging into SP/{{VERSION}} branch.
         if: startsWith(github.event.pull_request.base.ref, 'SP/') &&  startsWith(github.event.pull_request.head.ref, 'SP/') 
         run: |
-          head_ref="${{ github.event.pull_request.head.ref }}"
-          base_ref="${{ github.event.pull_request.base.ref }}"
-          if [[ $head_ref =~ '^SP/v[\.\d]+/([-\w\d+])$' ]] && [["$base_ref" =~ '^SP/v[\.\d]+$' ]]; then
+          $head_ref = "${{ github.event.pull_request.head.ref }}"
+          $base_ref = "${{ github.event.pull_request.base.ref }}"
+          if ( $head_ref -match '^SP/v[\.\d]+/([-\w\d+])$' && "$base_ref" -match '^SP/v[\.\d]+$' )
+          {
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
-          fi
+            echo "REMOVE_BRANCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
 
       - name: removing head branch
         if:   ${{ env.REMOVE_BRANCH }} 
