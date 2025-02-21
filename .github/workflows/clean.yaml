@@ -3,21 +3,10 @@ name: Branch Deleted
 on: delete
 
 jobs:
-
   Clean:          
     name: Clean
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.ref }}
-          sparse-checkout: |
-                           text.txt
-          sparse-checkout-cone-mode: false
-              
-      - name: view test file
-        run: cat test.txt
-      
       - name: Clean up - Branch
         if: github.event.ref_type == 'branch'
         run: |
