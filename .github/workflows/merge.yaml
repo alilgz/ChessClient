@@ -5,27 +5,6 @@ on:
     types: [closed]
 
 jobs:
-
-  test1-job:
-    if:   ${{  github.event.pull_request.merged }} 
-    runs-on: ubuntu-latest
-    steps:
-      - name: test step on merged PR
-        run: |
-          echo "TEST MERGED"
-          echo "v = ${{ github.event.pull_request.merged }} "
-
-  test2-job:
-    if:   ${{  github.event.pull_request.merged != true }} 
-    runs-on: ubuntu-latest
-    steps:
-      - name: trst step on closed PR 
-        run: |
-          echo "TEST CLOSED"
-          echo "v = ${{ github.event.pull_request.merged }} "
-
-
-
   remove-branch-job:
     # run job if we merge not MAIN or DEVELOP into other branches 
     # also check that PR was merged 
@@ -42,6 +21,8 @@ jobs:
           if [[ $head_ref =~ '^RELEASE\/v[\.\d]+\/([-\w\d+])$' && $base_ref =~ '^RELEASE\/v[\.\d]+$' ]]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
+          else
+            echo "REMOVE_BRANCH=false" >> $GITHUB_ENV
           fi
           
       - name: remove Release/version branch (merged to MAIN)
@@ -52,6 +33,8 @@ jobs:
           if [[ $head_ref =~'^RELEASE\/v[\.\d]+$'  ]]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
+          else
+            echo "REMOVE_BRANCH=false" >> $GITHUB_ENV
           fi
 
       - name: remove User branch
@@ -62,6 +45,8 @@ jobs:
           if [[ $base_ref =~ '^BUILD\/[-\w\d]+$']]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
+          else
+            echo "REMOVE_BRANCH=false" >> $GITHUB_ENV
           fi
           
       - name: remove Build branch
@@ -72,6 +57,8 @@ jobs:
           if [[ $head_ref =~ '^BUILD\/[-\w\d]+$']]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
+          else
+            echo "REMOVE_BRANCH=false" >> $GITHUB_ENV
           fi
 
       - name: remove SP  branch
@@ -83,10 +70,12 @@ jobs:
           if [[ $head_ref =~ '^SP\/v[\.\d]+\/([-\w\d+])$' && $base_ref =~ '^SP\/v[\.\d]+$' ]]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
+          else
+            echo "REMOVE_BRANCH=false" >> $GITHUB_ENV
           fi
 
       - name: removing head branch
-        if:   ${{ env.REMOVE_BRANCH == 'true' }} 
+        if:   ${{ env.REMOVE_BRANCH }} 
         run: |
           echo " branch ${{ github.event.pull_request.head.ref}} removed "
 
