@@ -19,21 +19,22 @@ jobs:
         run: |
           $head_ref="${{ github.event.pull_request.head.ref }}"
           $base_ref="${{ github.event.pull_request.base.ref }}"
-          if ($head_ref -match '^release/v[.\d]+/([-\\w\\d]+)$' -and $base_ref -match '^release/v[.\d]+$') 
+          if ($head_ref -match '^RELEASE\/v[.\d]+/([-\\w\\d]+)$' -and $base_ref -match '^RELEASE/v[.\d]+$') 
           {
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "PATTERN_MATCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           }
           
       - name: remove Release/version branch (merged to MAIN)
+        shell: pwsh
         #Delete RELEASE/{{VERSION}} branch and S3 artifacts when merging into MAIN branch.
         if:   ${{ github.event.pull_request.base.ref == 'MAIN' }} && startsWith(github.event.pull_request.head.ref, 'RELEASE/')
         run: |
-          head_ref="${{ github.event.pull_request.head.ref }}"
-          if [[ "$head_ref" =~ "^RELEASE\/v[\.\d]+$" ]]; then
+          $head_ref="${{ github.event.pull_request.head.ref }}"
+          if ( $head_ref -match "^RELEASE\/v[\.\d]+$" ) {
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
-          fi
+            echo "PATTERN_MATCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
 
       - name: remove User branch
         #Delete user branch when merging into BUILD/{{TERM}} branch.
