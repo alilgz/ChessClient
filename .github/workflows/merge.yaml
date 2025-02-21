@@ -18,7 +18,7 @@ jobs:
         run: |
           head_ref="${{ github.event.pull_request.head.ref }}"
           base_ref="${{ github.event.pull_request.base.ref }}"
-          if [[ $head_ref =~ '^RELEASE\/v[\.\d]+/([-\w\d+])$']] && [[ $base_ref =~ '^RELEASE/v[\.\d]+$' ]]; then
+          if [[ "$head_ref" =~ '^RELEASE/v[\.\d]+/([-\w\d+])$' ]] && [[ "$base_ref" =~ '^RELEASE/v[\.\d]+$' ]]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
           else
@@ -30,11 +30,9 @@ jobs:
         if:   ${{ github.event.pull_request.base.ref == 'MAIN' }} && startsWith(github.event.pull_request.head.ref, 'RELEASE/')
         run: |
           head_ref="${{ github.event.pull_request.head.ref }}"
-          if [ $head_ref =~'^RELEASE/v[\.\d]+$'  ]; then
+          if [[ "$head_ref" =~'^RELEASE/v[\.\d]+$'  ]]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
-          else
-            echo "REMOVE_BRANCH=false" >> $GITHUB_ENV
           fi
 
       - name: remove User branch
@@ -42,11 +40,9 @@ jobs:
         if: startsWith(github.event.pull_request.base.ref, 'BUILD/')
         run: |
           base_ref="${{ github.event.pull_request.base.ref }}"
-          if [ $base_ref =~ '^BUILD/[-\w\d]+$']; then
+          if [[ "$base_ref" =~ '^BUILD/[-\w\d]+$']]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
-          else
-            echo "REMOVE_BRANCH=false" >> $GITHUB_ENV
           fi
           
       - name: remove Build branch
@@ -54,11 +50,9 @@ jobs:
         if:  startsWith(github.event.pull_request.head.ref, 'BUILD/') && ${{ github.event.pull_request.base.ref == 'DEVELOP'}} 
         run: |
           head_ref="${{ github.event.pull_request.head.ref }}"
-          if [ $head_ref =~ '^BUILD/[-\w\d]+$']; then
+          if [[ "$head_ref" =~ '^BUILD/[-\w\d]+$' ]]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
-          else
-            echo "REMOVE_BRANCH=false" >> $GITHUB_ENV
           fi
 
       - name: remove SP  branch
@@ -67,11 +61,9 @@ jobs:
         run: |
           head_ref="${{ github.event.pull_request.head.ref }}"
           base_ref="${{ github.event.pull_request.base.ref }}"
-          if [ $head_ref =~ '^SP/v[\.\d]+/([-\w\d+])$' && $base_ref =~ '^SP/v[\.\d]+$' ]; then
+          if [[ $head_ref =~ '^SP/v[\.\d]+/([-\w\d+])$' ]] && [["$base_ref" =~ '^SP/v[\.\d]+$' ]]; then
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
             echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
-          else
-            echo "REMOVE_BRANCH=false" >> $GITHUB_ENV
           fi
 
       - name: removing head branch
