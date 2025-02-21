@@ -5,6 +5,25 @@ on:
     types: [closed]
 
 jobs:
+
+  test1-job:
+    if:   ${{  github.event.pull_request.merged =='true' }} 
+    runs-on: ubuntu-latest
+    steps:
+      - name: test step on merged PR
+        run: |
+          echo "TEST MERGED"
+
+  test2-job:
+    if:   ${{  github.event.pull_request.merged !='true' }} 
+    runs-on: ubuntu-latest
+    steps:
+      - name: trst step on closed PR 
+        run: |
+          echo "TEST CLOSED"
+
+
+
   remove-branch-job:
     # run job if we merge not MAIN or DEVELOP into other branches 
     # also check that PR was merged 
