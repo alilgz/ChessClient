@@ -7,7 +7,7 @@ on:
 jobs:
 
   test1-job:
-    if:   ${{  github.event.pull_request.merged =='true' }} 
+    if:   ${{  github.event.pull_request.merged }} 
     runs-on: ubuntu-latest
     steps:
       - name: test step on merged PR
@@ -16,7 +16,7 @@ jobs:
           echo "v = ${{ github.event.pull_request.merged }} "
 
   test2-job:
-    if:   ${{  github.event.pull_request.merged !='true' }} 
+    if:   ${{  github.event.pull_request.merged != true }} 
     runs-on: ubuntu-latest
     steps:
       - name: trst step on closed PR 
@@ -29,7 +29,7 @@ jobs:
   remove-branch-job:
     # run job if we merge not MAIN or DEVELOP into other branches 
     # also check that PR was merged 
-    if:   ${{ github.event.pull_request.head.ref != 'DEVELOP' && github.event.pull_request.head.ref != 'MAIN' && github.event.pull_request.merged =='true' }} 
+    if:   ${{ github.event.pull_request.head.ref != 'DEVELOP' && github.event.pull_request.head.ref != 'MAIN' && github.event.pull_request.merged  }} 
     runs-on: ubuntu-latest
 
     steps:
