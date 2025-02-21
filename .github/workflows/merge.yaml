@@ -1,17 +1,55 @@
-name: Branch Merged 
+name: Pull Request Closed
 
 on:
   pull_request:
     types: [closed]
-jobs:
 
-  CLOSED:          
-    name: PR CLOSED
+jobs:
+  remove-branch-job:
+    # run job if we merge not MAIN or DEVELOP into other branches 
+    # also check that PR was merged 
+    if:   ${{ github.event.pull_request.head.ref != '^DEVELOP$' && github.event.pull_request.head.ref != '^MAIN$' && github.event.pull_request.merged =='true' }} 
     runs-on: ubuntu-latest
+
     steps:
-      - name: TEST
+      - name: remove Release/version/jira-id branch (merged to release/version)
+        #Delete RELEASE/{{VERSION}}/{{JIRA-ID}} branch and S3 artifacts when merging into RELEASE/{{VERSION}} branch.
+        if:   ${{ github.event.pull_request.head.ref =~ '^RELEASE\/v[\.\d]+\/([-\w\d+])$' && github.event.pull_request.base.ref =~ '^RELEASE\/v[\.\d]+$' }} 
         run: |
-          echo "PR WAS CLOSED"
-          echo "Clean up for TAG ${{ github.event.ref }}"
-          echo "Clean up for TAG ${{ github.event.ref_type }}"
+          echo "start removing branch ${{ github.event.pull_request.head.ref}} "
+          echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
           
+      - name: remove Release/version branch (merged to MAIN)
+        #Delete RELEASE/{{VERSION}} branch and S3 artifacts when merging into MAIN branch.
+        if:   ${{ github.event.pull_request.head.ref =~ '^RELEASE\/v[\.\d]+$' && github.event.pull_request.base.ref == 'MAIN'}} 
+        run: |
+          echo "start removing branch ${{ github.event.pull_request.head.ref}} "
+          echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
+
+      - name: remove User branch
+        #Delete user branch when merging into BUILD/{{TERM}} branch.
+        if:   ${{ github.event.pull_request.base.ref =~ '^BUILD\/[-\w\d]+$'}} 
+        run: |
+          echo "start removing branch ${{ github.event.pull_request.head.ref}} "
+          echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
+          
+      - name: remove Build branch
+        #Delete BUILD/{{TERM}} branch and S3 artifacts when merging into DEVELOP branch.
+        if:   ${{ github.event.pull_request.head.ref =~ '^BUILD\/[-\w\d]+$' && github.event.pull_request.base.ref == 'DEVELOP'}} 
+        run: |
+          echo "start removing branch ${{ github.event.pull_request.head.ref}} "
+          echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
+
+      - name: remove SP  branch
+        #Delete SP/{{VERSION}}/{{JIRA-ID}} branch and S3 artifacts when merging into SP/{{VERSION}} branch.
+        if:   ${{ github.event.pull_request.head.ref =~ '^SP\/v[\.\d]+\/([-\w\d+])$' && github.event.pull_request.base.ref =~ '^SP\/v[\.\d]+$' }} 
+        run: |
+          echo "start removing branch ${{ github.event.pull_request.head.ref}} "
+          echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
+
+      - name: removing head branch
+        if:   ${{ env.REMOVE_BRANCH == 'true' }} 
+        run: |
+          echo " branch ${{ github.event.pull_request.head.ref}} removed "
+
+    
