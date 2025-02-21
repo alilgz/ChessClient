@@ -1,3 +1,10 @@
+
+            
+          } else {
+            echo "PATTERN_MATCH=false" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+          
+
 name: Pull Request Closed
 
 on:
@@ -13,15 +20,17 @@ jobs:
 
     steps:
       - name: remove Release/version/jira-id branch (merged to release/version)
-        #Delete RELEASE/{{VERSION}}/{{JIRA-ID}} branch and S3 artifacts when merging into RELEASE/{{VERSION}} branch.
+        shell: pwsh
+        # Delete RELEASE/{{VERSION}}/{{JIRA-ID}} branch and S3 artifacts when merging into RELEASE/{{VERSION}} branch.
         if: startsWith(github.event.pull_request.head.ref, 'RELEASE/')
         run: |
-          head_ref="${{ github.event.pull_request.head.ref }}"
-          base_ref="${{ github.event.pull_request.base.ref }}"
-          if [[ "$head_ref" =~ '^RELEASE/v[\.\d]+/([-\w\d+])$' ]] && [[ "$base_ref" =~ '^RELEASE/v[\.\d]+$' ]]; then
+          $head_ref="${{ github.event.pull_request.head.ref }}"
+          $base_ref="${{ github.event.pull_request.base.ref }}"
+          if ($head_ref -match '^release/v[.\d]+/([-\\w\\d]+)$' -and $base_ref -match '^release/v[.\d]+$') 
+          {
             echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "REMOVE_BRANCH=true" >> $GITHUB_ENV
-          fi
+            echo "PATTERN_MATCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
           
       - name: remove Release/version branch (merged to MAIN)
         #Delete RELEASE/{{VERSION}} branch and S3 artifacts when merging into MAIN branch.
