@@ -1,83 +1,31 @@
-name: Pull Request Closed
+name: Remove Source Branch
 
 on:
   pull_request:
     types: [closed]
 
 jobs:
-  remove-branch-job:
-    # run job if we merge not MAIN or DEVELOP into other branches 
-    # also check that PR was merged 
-    if:   ${{ github.event.pull_request.head.ref != 'DEVELOP' && github.event.pull_request.head.ref != 'MAIN' && github.event.pull_request.merged  }} 
+  delete-source-branch:
     runs-on: ubuntu-latest
 
     steps:
-      - name: remove Release/version/jira-id branch (merged to release/version)
-        shell: pwsh
-        # Delete RELEASE/{{VERSION}}/{{JIRA-ID}} branch and S3 artifacts when merging into RELEASE/{{VERSION}} branch.
-        if: startsWith(github.event.pull_request.head.ref, 'RELEASE/')
-        run: |
-          $head_ref="${{ github.event.pull_request.head.ref }}"
-          $base_ref="${{ github.event.pull_request.base.ref }}"
-          if ($head_ref -match '^RELEASE\/v[.\d]+/([-\\w\\d]+)$' -and $base_ref -match '^RELEASE/v[.\d]+$') 
-          {
-            echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "REMOVE_BRANCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
-          
-      - name: remove Release/version branch (merged to MAIN)
-        shell: pwsh
-        #Delete RELEASE/{{VERSION}} branch and S3 artifacts when merging into MAIN branch.
-        if:   ${{ github.event.pull_request.base.ref == 'MAIN' }} && startsWith(github.event.pull_request.head.ref, 'RELEASE/')
-        run: |
-          $head_ref="${{ github.event.pull_request.head.ref }}"
-          if ( $head_ref -match "^RELEASE\/v[\.\d]+$" ) 
-          {
-            echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "REMOVE_BRANCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: remove User branch
-        shell: pwsh
-        #Delete user branch when merging into BUILD/{{TERM}} branch.
-        if: startsWith(github.event.pull_request.base.ref, 'BUILD/')
+      - name: Check if the source branch is not develop or main
+        id: check-branch
         run: |
-          $base_ref="${{ github.event.pull_request.base.ref }}"
-          if ( "$base_ref" -match '^BUILD/[-\w\d]+$')
-          {
-            echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "REMOVE_BRANCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
-          
-      - name: remove Build branch
-        shell: pwsh
-        #Delete BUILD/{{TERM}} branch and S3 artifacts when merging into DEVELOP branch.
-        if:  startsWith(github.event.pull_request.head.ref, 'BUILD/') && ${{ github.event.pull_request.base.ref == 'DEVELOP'}} 
-        run: |
-          $head_ref = "${{ github.event.pull_request.head.ref }}"
-          if ( $head_ref -match '^BUILD/[-\w\d]+$' )
-          {
-            echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "REMOVE_BRANCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
+          head_ref="${{ github.event.pull_request.head.ref }}"
+          if [[ "$head_ref" != "develop" && "$head_ref" != "MAIN" ]]; then
+            echo "DELETE_BRANCH=true" >> $GITHUB_ENV
+          else
+            echo "DELETE_BRANCH=false" >> $GITHUB_ENV
+          fi
 
-      - name: remove SP  branch
-        shell: pwsh
-        #Delete SP/{{VERSION}}/{{JIRA-ID}} branch and S3 artifacts when merging into SP/{{VERSION}} branch.
-        if: startsWith(github.event.pull_request.base.ref, 'SP/') &&  startsWith(github.event.pull_request.head.ref, 'SP/') 
+      - name: Delete the source branch
+        if: ${{ env.DELETE_BRANCH == 'true' }}
         run: |
-          $head_ref = "${{ github.event.pull_request.head.ref }}"
-          $base_ref = "${{ github.event.pull_request.base.ref }}"
-          if ( $head_ref -match '^SP/v[\.\d]+/([-\w\d+])$' && "$base_ref" -match '^SP/v[\.\d]+$' )
-          {
-            echo "start removing branch ${{ github.event.pull_request.head.ref}} "
-            echo "REMOVE_BRANCH=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
-
-      - name: removing head branch
-        shell: pwsh
-        if:   ${{ env.REMOVE_BRANCH }} 
-        run: |
-          echo " branch ${{ github.event.pull_request.head.ref}} removed "
-
-    
+          gh api -X DELETE \
+            repos/${{ github.repository }}/git/refs/heads/${{ github.event.pull_request.head.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
