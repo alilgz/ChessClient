@@ -11,7 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: test1
+      shell: pwsh
       run: |
         Import-Module ./smth.ps1
         $demo = smth-run
         echo "done"
+        echo $demo
