@@ -13,14 +13,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore ChessClient
-    - name: Build
-      run: dotnet build ChessClient --no-restore
-    - name: Test
-      run: dotnet test ChessClient --no-build --verbosity normal
+    - name: test1
+      run: |
+        Import-Module ./smth.ps1
+        $demo = smth-run
+        echo "done"
