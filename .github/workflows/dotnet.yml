@@ -20,7 +20,7 @@ jobs:
     - name: test1
       shell: pwsh
       run: |
-        Import-Module ./smth.ps1
+        Import-Module ./.github/workflows/smth.ps1
         $demo = smth-run
         echo "done"
         echo $demo
