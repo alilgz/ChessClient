@@ -1,0 +1,24 @@
+name: Prepare and Use Array
+
+on:
+  workflow_dispatch: # Trigger manually for testing
+
+jobs:
+  example-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Prepare the data
+      - name: Prepare array of strings
+        id: prepare-data
+        run: |
+          strings=("value1" "value2" "value3")
+          echo "data=${strings[*]}" >> $GITHUB_ENV
+
+      # Step 2: Use the prepared array
+      - name: Use the array
+        run: |
+          echo "Using the array:"
+          for value in ${{ env.data }}; do
+            echo "Array item: $value"
+          done
