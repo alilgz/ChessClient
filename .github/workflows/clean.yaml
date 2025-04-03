@@ -21,11 +21,9 @@ jobs:
         shell: pwsh
         run: |
           echo "TEST"
-          echo "${{ github.event.name }}" 
-          echo "${{ github.event_name }}" 
-          if ("${{ github.event.name }}" -eq "pull_request" ) {  
+          if ("${{ github.event_name }}" -eq "pull_request" ) {  
             echo "PR"
-          } else if ("${{ github.event.name }}" -eq "delete" ) {  
+          } elseif ("${{ github.event_name }}" -eq "delete" ) {  
             echo "DEL"
           } 
           echo "TEST done"
