@@ -18,6 +18,7 @@ jobs:
           echo "Clean up for TAG ${{ github.event.ref }}"
 
       - name: Test for ci
+        shell: powershell
         run: |
           echo "TEST"
           if (${{ github.event.name == 'pull_request' }}) {  
