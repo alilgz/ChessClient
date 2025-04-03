@@ -20,14 +20,9 @@ jobs:
       - name: Test for ci
         run: |
           echo "TEST"
-          if (${{ github.event_name == 'pull_request' }}) {  
+          if (${{ github.event_name == "pull_request" }}) {  
             echo "PR"
-            $branchName =$Env:GITHUB_BASE_REF
-            $branchName1 = ${{ github.base_ref }}
-            echo $branchName
-            echo $branchName1
-          else if ( ${{ github.event_name == 'delete' }} ) {  
+          } 
+          if (${{ github.event_name == "delete" }}) {  
             echo "DEL"
-            $branchName = "${{ github.event.ref }}" -replace "refs/heads/", ""
-            echo $branchName
           } 
