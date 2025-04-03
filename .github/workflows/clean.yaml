@@ -20,9 +20,9 @@ jobs:
       - name: Test for ci
         run: |
           echo "TEST"
-          if (${{ github.event.name == "pull_request" }}) {  
+          if (${{ github.event.name == 'pull_request' }}) {  
             echo "PR"
           } 
-          if (${{ github.event.name == "delete" }}) {  
+          if (${{ github.event.name == 'delete' }}) {  
             echo "DEL"
           } 
