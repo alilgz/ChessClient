@@ -23,15 +23,15 @@ jobs:
           if (${{ github.event_name == 'pull_request' }}) {  
             echo "PR"
             $branchName =$Env:GITHUB_BASE_REF
-            $branchName =${{ github.base_ref }}
+            $branchName = ${{ github.base_ref }}
             echo $branchName
             echo $branchName1e
-          else if (${{ github.event_name == 'delete' }}) {  
+          else if ( ${{ github.event_name == 'delete' }} ) {  
             echo "DEL"
             $branchName = ${{ github.event.ref}} -replace "refs/heads/", ""
             echo $branchName
           } 
-          elseif (${{github.ref -like "refs/tags/*") {
+          elseif ( ${{github.ref -like "refs/tags/*"}} ) {
             echo "TAG"
             $tagName = $Env:GITHUB_REF -replace "refs/tags/", ""
             echo $tagName
