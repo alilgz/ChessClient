@@ -16,3 +16,28 @@ jobs:
         if: github.event.ref_type == 'tag'
         run: |
           echo "Clean up for TAG ${{ github.event.ref }}"
+
+      - name: Test for ci
+        run: |
+          echo "TEST"
+          if (${{ github.event_name == 'pull_request' }}) {  
+            echo "PR"
+            $branchName =$Env:GITHUB_BASE_REF
+            $branchName =${{ github.base_ref }}
+            echo $branchName
+            echo $branchName1e
+          else if (${{ github.event_name == 'delete' }}) {  
+            echo "DEL"
+            $branchName = ${{ github.event.ref}} -replace "refs/heads/", ""
+            echo $branchName
+          } 
+          elseif (${{github.ref -like "refs/tags/*") {
+            echo "TAG"
+            $tagName = $Env:GITHUB_REF -replace "refs/tags/", ""
+            echo $tagName
+          }  
+          elseif ($Env:GITHUB_REF -like "refs/heads/*") {
+            echo "NO IDEA"
+            $branchName = $Env:GITHUB_REF -replace "refs/heads/", ""
+            echo $branchName
+          }
