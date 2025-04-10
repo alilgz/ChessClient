@@ -7,6 +7,10 @@ jobs:
     name: Clean
     runs-on: ubuntu-latest
     steps:
+    
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
       - name: Clean up - Param PS
         if: github.event.ref_type == 'branch'
         run: .github/utils/test.ps1
