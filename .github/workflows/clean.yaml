@@ -17,7 +17,7 @@ jobs:
         shell: pwsh
         
       - name: Use test Variable
-        if: $env:MY_VAR !=''
+        if: "${{ env.MY_VAR != '' }}"
         run: echo "The value of MY_VAR is $env:MY_VAR"
         shell: pwsh
         
