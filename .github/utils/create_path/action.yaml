@@ -15,4 +15,4 @@ runs:
         echo "smth"
         echo "calculation"
         $deploy_path = "TEST/path/folder/1"
-        "deploy_path=$deploy_path" | Out-File -FilePath $env:GITHUB_ENV -Append
+        "deploy_path=$deploy_path" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
