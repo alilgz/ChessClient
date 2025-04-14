@@ -19,13 +19,4 @@ jobs:
         if: ${{ env.deploy_path != '' }}
         run: echo "The value of MY_VAR is $env:deploy_path"
         shell: pwsh
-        
-      - name: AS STEP
-        if: "${{ steps.get_name.outputs.deploy_path != '' }}"
-        run: echo "The value of MY_VAR is ${{ steps.get_name.outputs.deploy_path }}"
-        shell: pwsh
-        
-      - name: AS MIX
-        if: "${{ env.deploy_path != '' }}"
-        run: echo "The value of MY_VAR is ${{ steps.get_name.outputs.deploy_path }}"
-        shell: pwsh
+     
