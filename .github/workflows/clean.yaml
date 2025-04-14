@@ -14,22 +14,22 @@ jobs:
       - name: GET NAME
         if: github.event.ref_type == 'branch'
         id: get_name
-        run: ./.github/utils/test
+        run: ./.github/utils/create_path
         shell: pwsh
         
       - name: AS VAR
-        if: ${{ env.MY_VAR != '' }}
-        run: echo "The value of MY_VAR is $env:MY_VAR"
+        if: ${{ env.deploy_path != '' }}
+        run: echo "The value of MY_VAR is $env:deploy_path"
         shell: pwsh
         
       - name: AS STEP
-        if: "${{ steps.get_name.outputs.MY_VAR != '' }}"
-        run: echo "The value of MY_VAR is ${{ steps.get_name.outputs.MY_VAR }}"
+        if: "${{ steps.get_name.outputs.deploy_path != '' }}"
+        run: echo "The value of MY_VAR is ${{ steps.get_name.outputs.deploy_path }}"
         shell: pwsh
         
       - name: AS MIX
-        if: "${{ env.MY_VAR != '' }}"
-        run: echo "The value of MY_VAR is ${{ steps.get_name.outputs.MY_VAR }}"
+        if: "${{ env.deploy_path != '' }}"
+        run: echo "The value of MY_VAR is ${{ steps.get_name.outputs.deploy_path }}"
         shell: pwsh
         
 
