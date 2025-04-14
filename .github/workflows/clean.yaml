@@ -16,7 +16,7 @@ jobs:
         uses: ./.github/utils/create_path
         
       - name: AS VAR
-        if: ${{ env.deploy_path != '' }}
-        run: echo "The value of MY_VAR is $env:deploy_path"
+        if: ${{ steps.get_name.outputs.deploy_path != '' }}
+        run: echo "The value of MY_VAR is ${{ steps.get_name.outputs.deploy_path }}"
         shell: pwsh
      
