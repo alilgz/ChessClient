@@ -14,7 +14,7 @@ jobs:
       - name: GET NAME
         if: github.event.ref_type == 'branch'
         id: get_name
-        run: ./.github/utils/create_path
+        run: .github/utils/create_path
         shell: pwsh
         
       - name: AS VAR
