@@ -24,12 +24,12 @@ jobs:
         
       - name: AS STEP
         if: "${{ steps.get_name.outputs.MY_VAR != '' }}"
-        run: echo "The value of MY_VAR is $steps.get_name.outputs.MY_VAR"
+        run: echo "The value of MY_VAR is ${{ steps.get_name.outputs.MY_VAR }}"
         shell: pwsh
         
       - name: AS MIX
         if: "${{ env.MY_VAR != '' }}"
-        run: echo "The value of MY_VAR is $steps.get_name.outputs.MY_VAR"
+        run: echo "The value of MY_VAR is ${{ steps.get_name.outputs.MY_VAR }}"
         shell: pwsh
         
 
