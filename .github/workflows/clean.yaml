@@ -11,52 +11,25 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         
-      - name: Clean up - Param PS
-        id: get_name
+      - name: GET NAME
         if: github.event.ref_type == 'branch'
+        id: get_name
         run: .github/utils/test.ps1
         shell: pwsh
         
-      - name: Use test Variable as VAR
+      - name: AS VAR
         if: "${{ env.MY_VAR != '' }}"
         run: echo "The value of MY_VAR is $env:MY_VAR"
         shell: pwsh
         
-      - name: Use test Variable as STEP
+      - name: AS STEP
         if: "${{ steps.get_name.outputs.MY_VAR != '' }}"
         run: echo "The value of MY_VAR is $steps.get_name.outputs.MY_VAR"
         shell: pwsh
         
-      - name: Use test Variable as MIX
+      - name: AS MIX
         if: "${{ env.MY_VAR != '' }}"
         run: echo "The value of MY_VAR is $steps.get_name.outputs.MY_VAR"
         shell: pwsh
         
-      - name: Clean up - Branch
-        if: github.event.ref_type == 'branch'
-        run: |
-          echo "Clean up for BRANCH ${{ github.event.ref }}"
 
-      - name: Clean up TAG
-        if: github.event.ref_type == 'tag'
-        run: |
-          echo "Clean up for TAG ${{ github.event.ref }}"
-
-      - name: Test for ci
-        shell: pwsh
-        run: |
-          echo "TEST"
-          echo  "${{ github.event.ref }}"
-          if ("${{ github.event_name }}" -eq "pull_request" ) {  
-            echo "PR"
-            $branchName =$Env:GITHUB_BASE_REF
-            $branchName1 = ${{ github.base_ref }}
-            echo $branchName
-            echo $branchName1
-
-          } elseif ("${{ github.event_name }}" -eq "delete" ) {  
-             echo "DEL"
-             $branchName = "${{ github.event.ref }}" -replace "refs/heads/", ""
-             echo $branchName
-          } 
-          echo "TEST done"
