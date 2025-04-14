@@ -14,8 +14,8 @@ jobs:
       - name: GET NAME
         if: github.event.ref_type == 'branch'
         id: get_name
-        run: .github/utils/create_path
-        shell: pwsh
+        uses: ./.github/utils/create_path
+
         
       - name: AS VAR
         if: ${{ env.deploy_path != '' }}
