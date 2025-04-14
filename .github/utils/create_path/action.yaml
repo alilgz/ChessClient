@@ -1,19 +1,18 @@
 name: create path
+
 outputs:
- deploy_path:
-   description: "deploy path"
-   value: ${{ steps.create_path.outputs.deploy_path }}
-   
+  deploy_path:
+    description: "deploy path"
+    value: ${{ steps.create_path.outputs.deploy_path }}
+
 runs:
   using: "composite"
   steps:
-   - name: create path somehow
-     id: create_path
-     shell: pwsh
-     run: |
-           
-      echo "smth"
-      echo "calculation"
-      $deploy_path  = "TEST/path/folder/1"
-      "deploy_path=$deploy_path" | Out-File -FilePath $env:GITHUB_ENV -Append
-       
+    - name: create path somehow
+      id: create_path
+      shell: pwsh
+      run: |
+        echo "smth"
+        echo "calculation"
+        $deploy_path = "TEST/path/folder/1"
+        "deploy_path=$deploy_path" | Out-File -FilePath $env:GITHUB_ENV -Append
